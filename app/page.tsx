@@ -202,7 +202,7 @@ export default function Home() {
           </div>
         </div>
         <div className="peshagi-panel">
-          <div className="peshagi-pattern"><Image src="/pervyukt-emblem.png" alt="PARVYUKT modular four-colour emblem" width={586} height={589} /></div>
+          <div className="peshagi-pattern"><Image src="/logo_word_dark.svg" alt="PESHAGI wordmark" width={164} height={50} /></div>
           <div>
             <p>Extending the ecosystem</p>
             <h3>PESHAGI</h3>
