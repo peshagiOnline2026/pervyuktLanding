@@ -13,9 +13,9 @@ export const metadata: Metadata = {
     title: "PARVYUKT — Healing The Healthy Way",
     description: "From Himalayan farms to your daily life.",
     type: "website",
-    images: [{ url: "/og.png", width: 1200, height: 630, alt: "PARVYUKT — Healing The Healthy Way" }],
+    images: [{ url: "/hero.png", width: 1200, height: 630, alt: "PARVYUKT — Healing The Healthy Way" }],
   },
-  twitter: { card: "summary_large_image", title: "PARVYUKT — Healing The Healthy Way", description: "From Himalayan farms to your daily life.", images: ["/og.png"] },
+  twitter: { card: "summary_large_image", title: "PARVYUKT — Healing The Healthy Way", description: "From Himalayan farms to your daily life.", images: ["/hero.png"] },
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {

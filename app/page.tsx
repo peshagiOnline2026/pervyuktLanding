@@ -57,7 +57,7 @@ export default function Home() {
           <a href="#science">Science</a>
           <a href="#impact">Impact</a>
         </nav>
-        <a className="header-cta" href="#partner">Partner with us <span aria-hidden="true">↗</span></a>
+        <a className="header-cta" href="#partner">Partner with us</a>
       </header>
 
       <section className="hero" id="top">
@@ -67,8 +67,8 @@ export default function Home() {
           <p className="hero-lede">From Himalayan farms to your daily life.</p>
           <p className="hero-body">PARVYUKT brings proprietary cultivation, premium extracts, nutraceuticals, functional foods and healing personal care into one evidence-led ecosystem for preventive health.</p>
           <div className="hero-actions">
-            <a className="button button--dark" href="#platform">Discover our platform <span aria-hidden="true">↓</span></a>
-            <a className="text-link" href="#partner">Build the future with us <span aria-hidden="true">↗</span></a>
+            <a className="button button--dark" href="#platform">Discover our platform</a>
+            <a className="text-link" href="#partner">Build the future with us</a>
           </div>
           <div className="trust-line" aria-label="Recognition and support">
             <span>Recognised by <strong>DPIIT</strong></span>
@@ -77,7 +77,7 @@ export default function Home() {
           </div>
         </div>
         <div className="hero-art">
-          <Image className="hero-mushroom" src="/og.png" alt="Medicinal mushrooms framed by PARVYUKT’s modular brand shapes" fill sizes="(max-width: 760px) 88vw, 42vw" priority />
+          <Image className="hero-mushroom" src="/hero.png" alt="Medicinal mushrooms framed by PARVYUKT’s modular brand shapes" fill sizes="(max-width: 760px) 88vw, 42vw" priority />
           <div className="hero-art-badge"><span>Farm</span><i /> <span>Science</span><i /> <span>Wellness</span></div>
         </div>
       </section>
@@ -253,7 +253,7 @@ export default function Home() {
           <h2>Let’s shape the next chapter of natural healing.</h2>
           <p>We seek partnerships that bring more than capital—distribution strength, manufacturing leverage, category-building experience and institutional reach.</p>
           <p>Aligned with national AYUSH frameworks, we are exploring research validation, standardisation, wellness pilots and responsible public-health category education.</p>
-          <a className="button button--light" href="#top">Start with PARVYUKT <span aria-hidden="true">↗</span></a>
+          <a className="button button--light" href="#top">Start with PARVYUKT</a>
         </div>
       </section>
 
