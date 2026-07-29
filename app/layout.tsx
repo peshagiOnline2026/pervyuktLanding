@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import { Manrope, Newsreader } from "next/font/google";
-import Script from "next/script";
 import "./globals.css";
 
 const manrope = Manrope({ variable: "--font-sans", subsets: ["latin"] });
@@ -20,12 +19,5 @@ export const metadata: Metadata = {
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
-  return (
-    <html lang="en">
-      <body className={`${manrope.variable} ${newsreader.variable}`}>
-        {children}
-        <Script src="https://supportly-delta.vercel.app/widget.js" data-workspace="testing" strategy="afterInteractive" />
-      </body>
-    </html>
-  );
+  return <html lang="en"><body className={`${manrope.variable} ${newsreader.variable}`}>{children}</body></html>;
 }
