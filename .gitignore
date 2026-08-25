@@ -29,14 +29,22 @@ yarn-error.log*
 
 # env files (can opt-in for committing if needed)
 .env*
+!.env.example
 
 # vercel
 .vercel
 
 # typescript
 next-env.d.ts
+tsconfig.tsbuildinfo
 
 # local working files
 /tmp/
 /outputs/
 /work/
+
+# source assets — kept locally, not deployed. The web-ready hero film and
+# poster derived from these live in public/.
+/PARVYUKT - Healing The Healthy Way.mp4
+/Pervyukt.Identity.X TTS.pdf
+/index.html
