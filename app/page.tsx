@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { AboutHeadline, ContactForm, HeroVideo, ParallaxScene, SiteHeader } from "./interactive";
+import { AboutHeadline, ContactForm, HeroSignup, HeroVideo, ParallaxScene, SiteHeader } from "./interactive";
 
 // The flagship personal-care brand has its own site; the panel in #impact is
 // the one outbound link on the page.
@@ -46,25 +46,41 @@ export default function Home() {
       <main id="top">
 
       {/* ============================== HERO ==============================
-          The film carries its own burned-in captions through the middle and
-          lower thirds, so everything of ours sits in the top band above them:
-          one eyebrow, one headline, one line of support. The capture form that
-          used to sit here has moved to the header CTA and the contact section,
-          which is the only place a form now appears. */}
+          Two stacked blocks, never one on top of the other: the film in its own
+          frame, and our copy on the plate below it. The film already carries
+          burned-in captions through its middle and lower thirds, so anything of
+          ours laid over it was a second voice competing with the first — and on
+          a phone it was that competition in a column half as wide. Below the
+          frame the headline is simply the page's own opening line, and the film
+          is left to be a film. The only thing still over the video is its own
+          pair of controls.
+
+          The plate carries one field — an address, nothing more. The enquiry
+          card at #contact is still the only place that takes a message, and
+          the two go to different tables. */}
       <section className="hero">
         <HeroVideo />
 
         <div className="hero__content">
-          <p className="label label--air hero__eyebrow">India’s first vertically integrated medicinal mushroom wellness platform</p>
-          <h1 className="hero__title">Healing the healthy way.</h1>
-          <p className="hero__tagline">From Himalayan farms to your daily life.</p>
-        </div>
+          <div className="hero__lead">
+            <p className="label label--air hero__eyebrow">India’s first vertically integrated medicinal mushroom wellness platform</p>
+            <h1 className="hero__title">Healing the healthy way.</h1>
+            {/* Directly under the headline, which is the one place a hero CTA
+                reads as the headline's own next step. It asks for an address
+                and nothing else; the enquiry card at #contact is still the
+                only place that takes a message. */}
+            <HeroSignup />
+          </div>
 
-        <p className="label hero__cue">
-          <span>Farm</span><i aria-hidden="true" />
-          <span>Science</span><i aria-hidden="true" />
-          <span>Wellness</span>
-        </p>
+          <div className="hero__aside">
+            <p className="hero__tagline">From Himalayan farms to your daily life.</p>
+            <p className="label hero__cue">
+              <span>Farm</span><i aria-hidden="true" />
+              <span>Science</span><i aria-hidden="true" />
+              <span>Wellness</span>
+            </p>
+          </div>
+        </div>
       </section>
 
       {/* ============================== BEATS ==============================
@@ -105,27 +121,22 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Vision — a statement, so it gets the full width and no neighbour. */}
-      <section className="plate container" id="vision">
-        <p className="label label--air">Our vision</p>
-        <AboutHeadline text={VISION} />
-      </section>
-
-      {/* Mission — the same treatment on a dark ground, the same rail-and-body split
-          as a beat: the mark, label and values against the statement itself. */}
-      <section className="plate container">
-        <aside className="mission">
-          <span className="drift drift--glow" aria-hidden="true" />
-          <div className="mission__side">
-            {/* Decorative: PARVYUKT is named in the statement beside it. */}
-            <Image className="mission__emblem" src="/pervyukt-emblem.png" alt="" width={586} height={589} />
-            <p className="label label--air">Our mission</p>
-            <ul className="mission__values">
-              {VALUES.map((value) => <li key={value}>{value}</li>)}
-            </ul>
-          </div>
-          <p className="mission__quote">{MISSION}</p>
-        </aside>
+      {/* Vision and mission now sit as one paired statement rather than two
+          full-width horizontal bands: vision is the light left panel, mission
+          the darker right panel. */}
+      <section className="principles container" id="vision">
+        <article className="principle principle--vision">
+          <p className="label label--air">Our vision</p>
+          <AboutHeadline text={VISION} />
+        </article>
+        <article className="principle principle--mission">
+          <Image className="principle__emblem" src="/pervyukt-emblem.png" alt="" width={586} height={589} />
+          <p className="label label--air">Our mission</p>
+          <p className="principle__quote">{MISSION}</p>
+          <ul className="principle__values">
+            {VALUES.map((value) => <li key={value}>{value}</li>)}
+          </ul>
+        </article>
       </section>
 
       {/* ------------------------------ category ------------------------------ */}
@@ -221,23 +232,6 @@ export default function Home() {
             </p>
           </div>
 
-          {/* Media supporting the copy directly above it — the certificate is
-              what the standards claim rests on, so this pair belongs. */}
-          <figure className="cert plx">
-            <span className="cert__media">
-              <Image
-                src="/iso-9001-certificate.jpg"
-                alt="ISO 9001:2015 certificate of registration for Pervyukt Agrinnovaters Private Limited"
-                width={724}
-                height={1024}
-              />
-            </span>
-            <figcaption>
-              <p className="label label--fire">Quality management</p>
-              <strong>ISO 9001:2015 certified</strong>
-              <span>Research, cultivation, farming, production and international distribution.</span>
-            </figcaption>
-          </figure>
         </div>
       </section>
 

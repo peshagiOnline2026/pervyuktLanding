@@ -94,15 +94,21 @@ img { display: block; max-width: 100%; }
 .site-header.is-scrolled { background: #fff; }
 .site-header.is-scrolled .site-header__inner { padding-block: clamp(9px, 1.1vw, 14px); }
 
-/* The retail mark's forest quadrant is #003C36 — the hero's own green — so
-   over the film a quarter of the mark disappears and the other three petals
-   read as an L. It is the same problem the emblem has on the mission plate,
-   and it gets the same answer: the pale ground the mark is drawn for. Only
-   the plate's colour animates, never its padding, so the mark does not shift
-   as the bar goes white and the plate stops being needed. */
-.logo { display: inline-flex; align-items: center; padding: clamp(6px, .7vw, 10px) clamp(10px, 1.1vw, 16px); border-radius: .5rem; background: rgba(255, 255, 255, .95); box-shadow: 0 8px 24px -10px rgba(0, 42, 37, .5); transition: background .3s ease, box-shadow .3s ease; }
-.site-header.is-scrolled .logo { background: transparent; box-shadow: none; }
-.logo img { height: clamp(42px, 3.6vw, 62px); width: auto; }
+/* No plate under the mark at either end of the bar. The identity already
+   solves the two grounds itself — it ships a light lockup for dark grounds and
+   a dark one for pale grounds — so the bar cross-fades between the two marks
+   in place rather than carrying a white box over the film. Both are laid in
+   the same grid cell, so the swap is opacity only and the mark never shifts.
+
+   The petals are identical in both files; only the wordmark changes. Over the
+   film the light wordmark is what needs the help, and it gets a shadow rather
+   than a ground — the film's brightest frames are its wide daylight shots. */
+.logo { display: inline-grid; align-items: center; }
+.logo__mark { grid-area: 1 / 1; height: clamp(42px, 3.6vw, 62px); width: auto; transition: opacity .3s ease; }
+.logo__mark--light { filter: drop-shadow(0 1px 2px rgba(0, 42, 37, .55)) drop-shadow(0 6px 18px rgba(0, 42, 37, .45)); }
+.logo__mark--dark { opacity: 0; }
+.site-header.is-scrolled .logo__mark--light { opacity: 0; }
+.site-header.is-scrolled .logo__mark--dark { opacity: 1; }
 .logo:focus-visible { outline: 2px solid var(--water); outline-offset: 3px; }
 
 /* The one CTA above the fold's end. It arrives with the steady bar — over the
@@ -115,24 +121,38 @@ img { display: block; max-width: 100%; }
 .site-header__cta:focus-visible { outline: 2px solid var(--water); outline-offset: 2px; }
 
 /* =============================== HERO ===============================
-   Film, and one band of copy above the film's own captions. Nothing else:
-   the capture form that used to sit here is now the header CTA and the
-   enquiry card, so the hero reads as a single image. */
-.hero { position: relative; display: flex; flex-direction: column; min-height: 100vh; min-height: 100svh; overflow: hidden; color: #fff; background: var(--forest); }
+   Two stacked blocks: the film in its own frame, and the copy on the plate
+   under it. Nothing of ours is laid over the video — the film burns in its own
+   captions through the middle and lower thirds, and a headline on top of that
+   was two voices in the same frame. Underneath, the headline is just the
+   page's opening line and the film is left to be a film.
+
+   One screen, still: the plate is a fixed strip and the frame takes whatever
+   height is left, so the hero ends where the viewport does and the first beat
+   is one scroll away. */
+.hero { position: relative; display: flex; flex-direction: column; min-height: 100vh; min-height: 100svh; overflow: hidden; color: #fff; background: var(--forest-deep); }
 /* The hero is full-bleed and so cannot use .container, but its copy still has
    to start on the container's left edge — otherwise past --max the headline
    sits 160px left of the logo above it and the heading rail below it. 100%
    here is the hero's own width, so it tracks the viewport, not 100vw and the
    scrollbar. */
 .hero { --gutter: max(var(--pad), calc((100% - var(--max)) / 2 + var(--pad))); }
+
+/* Takes the remaining height, with a floor. min-height: 0 because a flex item
+   defaults to min-content and the video would otherwise refuse to shrink. */
+.hero__film { position: relative; flex: 1 1 auto; min-height: max(58svh, 320px); overflow: hidden; }
 .hero__bg { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: 0; }
 
-/* A scrim rather than text-shadow alone: the copy has to hold against every
-   frame of the film, and the film's brightest frames are its wide daylight
-   shots. Fades out well before the film's first burned-in caption. */
-.hero::before { content: ""; position: absolute; inset: 0 0 auto; height: 66%; z-index: 1; background: linear-gradient(180deg, rgba(0, 42, 37, .8), rgba(0, 42, 37, .46) 42%, transparent); pointer-events: none; }
+/* All the scrim still has to do is hold the mark in the bar above it — the
+   copy is off the film now. So it is the header's own depth and a little
+   more, not two thirds of the frame, and it stops well short of the film's
+   first burned-in caption. */
+.hero__film::before { content: ""; position: absolute; inset: 0 0 auto; height: calc(var(--bar) + 4rem); z-index: 1; background: linear-gradient(180deg, rgba(0, 42, 37, .62), transparent); pointer-events: none; }
 
-.hero__controls { position: absolute; right: var(--gutter); bottom: clamp(24px, 4vw, 56px); z-index: 3; display: flex; gap: .75rem; }
+/* Inside the frame, not the section: the controls belong to the video, and
+   this is what keeps them over it at every width rather than dropping into a
+   row of their own once the film stops filling the screen. */
+.hero__controls { position: absolute; right: clamp(16px, 3vw, 32px); bottom: clamp(16px, 3vw, 32px); z-index: 3; display: flex; gap: .75rem; }
 .icon-btn { width: 2.75rem; height: 2.75rem; display: grid; place-items: center; padding: 0; border: 1px solid rgba(255, 255, 255, .3); border-radius: 50%; background: rgba(0, 42, 37, .35); color: #fff; cursor: pointer; opacity: .9; transition: opacity .2s ease, border-color .2s ease, background .2s ease; }
 .icon-btn:hover { opacity: 1; border-color: var(--air); background: rgba(0, 42, 37, .6); }
 .icon-btn.is-off { opacity: .55; }
@@ -140,21 +160,47 @@ img { display: block; max-width: 100%; }
 .icon-btn svg .solid { fill: currentColor; stroke: none; }
 .icon-btn:focus-visible { outline: 2px solid var(--air); outline-offset: 2px; }
 
-/* Top band only — no space-between, so the middle and lower thirds of the
-   frame stay clear for the film's own captions. */
-/* Left-aligned, not centred. The film's own captions are centred, and centred
-   copy above them read as one stuttering stack — at one point the film burns in
-   "Healing The Healthy Way" directly under our h1 saying the same thing. Off to
-   the left it is page furniture and the caption is part of the film. It also
-   puts the hero on the same left edge as every rail below it. */
-.hero__content { position: relative; z-index: 2; display: flex; flex-direction: column; align-items: flex-start; text-align: left; padding-inline: var(--gutter); padding-top: calc(var(--bar) + clamp(20px, 4vh, 48px)); }
-.hero__content { text-shadow: 0 1px 2px rgba(0, 42, 37, .5), 0 2px 18px rgba(0, 42, 37, .55); }
-.hero__eyebrow { margin-bottom: clamp(16px, 2vw, 28px); }
-.hero__title { font-family: var(--font-sans), system-ui, sans-serif; font-weight: 600; font-size: clamp(2.35rem, 7.6vw, 96px); line-height: 1.02; letter-spacing: -.025em; max-width: 20ch; }
-.hero__tagline { margin-top: clamp(10px, 1.4vw, 20px); font-family: var(--font-sans), system-ui, sans-serif; font-weight: 400; font-size: clamp(1.05rem, 1.9vw, 28px); line-height: 1.3; letter-spacing: -.015em; color: rgba(255, 255, 255, .92); }
+/* The plate under the film. Two columns rather than one stack: the headline
+   reads left off the same edge as the logo above it and every heading rail
+   below it, and the support line sits to its right on the same baseline — so
+   the strip stays one band deep and the hero still ends inside one screen.
 
-/* Scroll cue, bottom left, opposite the film controls. */
-.hero__cue { position: absolute; left: var(--gutter); bottom: clamp(28px, 4vw, 60px); z-index: 2; display: flex; align-items: center; gap: .75rem; color: rgba(255, 255, 255, .74); text-shadow: 0 1px 2px rgba(0, 42, 37, .5); }
+   No text-shadow anywhere here. It existed to hold copy against a moving
+   frame; on a flat plate it is only softening the type. */
+.hero__content { position: relative; z-index: 2; flex: none; display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: end; column-gap: clamp(32px, 5vw, 96px); row-gap: clamp(14px, 2vw, 22px); padding-inline: var(--gutter); padding-block: clamp(24px, 3.4vw, 52px); }
+.hero__eyebrow { margin-bottom: clamp(12px, 1.4vw, 20px); }
+/* Sized to hold the line in one row against the support column beside it: the
+   plate is a strip, and a headline that wraps turns it into a second screen
+   and takes the height back off the film. */
+.hero__title { font-family: var(--font-sans), system-ui, sans-serif; font-weight: 600; font-size: clamp(1.9rem, 4vw, 60px); line-height: 1.04; letter-spacing: -.025em; max-width: 24ch; text-wrap: balance; }
+.hero__aside { display: flex; flex-direction: column; align-items: flex-end; gap: clamp(14px, 1.8vw, 24px); text-align: right; }
+.hero__tagline { font-family: var(--font-sans), system-ui, sans-serif; font-weight: 400; font-size: clamp(1rem, 1.5vw, 22px); line-height: 1.35; letter-spacing: -.015em; max-width: 22ch; color: rgba(255, 255, 255, .82); }
+
+/* -------------------------- hero email capture --------------------------
+   One white pill on the dark plate: field and button share it, so the pair
+   reads as a single control rather than as an input that happens to have a
+   button next to it.
+
+   The status line reserves no height. Everywhere else on the page a live
+   region holds its space so the arrival of a message cannot shift the layout,
+   but here that space is not free — the plate is a fixed strip and the film
+   takes what is left, so a permanently empty line costs the film ~26px for
+   the whole visit to save one shift that most visitors never trigger. */
+.signup { margin-top: clamp(18px, 2.2vw, 28px); width: min(30rem, 100%); }
+.signup__row { display: flex; align-items: center; gap: .375rem; padding: .3125rem; border-radius: .375rem; background: #fff; }
+.signup__row:focus-within { box-shadow: 0 0 0 2px var(--water); }
+/* min-width: 0 so a long address shrinks the field instead of pushing the
+   button out of the pill. */
+.signup__field { flex: 1; min-width: 0; min-height: 2.75rem; border: 0; background: transparent; padding-inline: .875rem; font: 400 1rem var(--font-sans), sans-serif; color: var(--ink); outline: none; }
+.signup__field::placeholder { color: var(--ink-muted); }
+.signup button { flex: none; min-height: 2.75rem; padding-inline: clamp(16px, 1.6vw, 26px); border: 0; border-radius: .25rem; background: var(--forest); color: #fff; font: 500 .8125rem var(--font-sans), sans-serif; letter-spacing: .02em; white-space: nowrap; cursor: pointer; transition: background .2s ease, box-shadow .25s ease; }
+.signup button:hover { background: var(--forest-mid); box-shadow: 0 12px 26px -10px rgba(0, 42, 37, .5); }
+.signup button:disabled { opacity: .7; cursor: default; }
+.signup button:focus-visible { outline: 2px solid var(--air); outline-offset: 2px; }
+.signup .form-status { margin-top: .5rem; min-height: 0; font-size: .8125rem; }
+
+/* Scroll cue, under the support line at the plate's right edge. */
+.hero__cue { display: flex; align-items: center; gap: .75rem; color: rgba(255, 255, 255, .6); }
 .hero__cue i { width: 3px; height: 3px; border-radius: 50%; background: var(--air); }
 
 /* ============================== BEATS ==============================
@@ -209,22 +255,58 @@ img { display: block; max-width: 100%; }
    from whatever sits behind them, so if the image is slow or blocked they come
    out brand green rather than white-on-white. */
 .about__headline { position: relative; isolation: isolate; overflow: hidden; max-width: 16ch; background: var(--forest); font-weight: 700; font-size: clamp(1.9rem, 3.5vw, 58px); line-height: 1.08; letter-spacing: -.02em; text-transform: uppercase; }
-.about__headline__media { object-fit: cover; z-index: 0; pointer-events: none; filter: contrast(1.05) saturate(1.25); }
-/* Each letter takes its colour from the backdrop, so the backdrop has to be
-   dark everywhere — hero.png is not (its mushroom stem and petals are bright,
-   and those letters came out white-on-white). This scrim guarantees the range
-   instead of relying on filter maths against one particular image. */
-/* 16ch above is part of this: hero.png is a 4:3 composition with its subject
-   dead centre and dark edges, and object-fit: cover on a wide three-line box
-   scaled it up so far that only a horizontal band of the mushroom cap landed in
-   the letters — the rest came out flat green and read as a rendering fault. Six
-   short lines make a box close to the image's own aspect, so the whole
-   composition shows through. */
-.about__headline::before { content: ""; position: absolute; inset: 0; z-index: 1; background: rgba(0, 60, 54, .6); pointer-events: none; }
+/* Positioned here rather than by next/image's `fill`, now that the layer is a
+   <video> and not an <Image>. cover, and inset to the box the glyphs occupy,
+   is what puts frame behind every character rather than behind some of them.
+
+   The film is graded by nothing: no filter on the layer and no scrim over it
+   (see ::before's absence below), so what the letters show is the clip exactly
+   as it plays in the hero. That is the whole intent here, and it is worth
+   being explicit about what it costs, because the cost is not constant — it is
+   a property of this particular clip. The film runs to pure white in its misty
+   wide shots, and white knocked out over the panel's own colour IS the panel's
+   own colour: those letters do not merely thin, they reach the ground exactly
+   and disappear for as long as the frame lasts. Measured across the clip, the
+   letters range from 18:1 at its darkest down to 1:1 at those wides.
+
+   Anything that fixes that also grades the film, which is the thing being
+   asked for, so it is left alone. If the type ever has to hold, the levers are
+   here (a filter on this layer) and below (a scrim on ::before) — both were
+   tried, and brightness/contrast on this layer held the worst frame at 8:1
+   without flattening the footage the way the scrim did. */
+.about__headline__media { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: 0; pointer-events: none; }
+/* No scrim over the film. There used to be one, and what it bought in
+   guaranteed contrast it paid for in the thing this panel is for: a flat tint
+   across the layer lands in every glyph, so the letters furthest from the
+   film's own bright areas came out solid green and the statement read as
+   type that had been coloured in rather than type cut out of moving footage.
+
+   So the range is bought on the layer itself instead. brightness() scales the
+   film rather than flooding it — the darks stay dark, the bright misty wides
+   stop running to white, and every character keeps its own piece of the frame.
+   The value below is the brightest one that still holds the worst frame of the
+   whole 58s clear of 4.5:1 against the panel; see the media rule above.
+
+   The measure matters here too. A wide three-line box crops a landscape source
+   so hard that one horizontal band of it lands in the letters and the rest
+   reads as flat colour; the short measure keeps the box near enough to square
+   that the whole frame shows through, which is what puts film in every
+   character rather than in a stripe of them. */
 .about__headline .word { white-space: nowrap; }
 .about__headline { text-box: trim-start cap alphabetic; }
-/* White knockout on `screen`: the letters show the image, the rest stays white. */
+/* White knockout on `screen`: the letters show the film, the rest goes white.
+   White is not a choice here, it is what `screen` produces — screening anything
+   against white is white — so the knockout cannot pick its own ground. */
 .about__headline__fill { position: relative; z-index: 2; display: block; background: #fff; color: #000; mix-blend-mode: screen; }
+
+/* Which is what this is for. The knockout left a white plate sitting on the
+   panel's off-white, so the box read as a second surface laid over the first —
+   two colours behind one statement. Multiplying the panel's own colour over the
+   finished knockout collapses that: white multiplied by anything is that thing,
+   so everything outside the letters becomes exactly the panel and the box stops
+   having an edge. Inside the letters it costs the film a few percent of
+   brightness, which is a scrim it is already carrying far more of. */
+.about__headline::after { content: ""; position: absolute; inset: 0; z-index: 3; background: var(--paper); mix-blend-mode: multiply; pointer-events: none; }
 .about__headline.js-anim .char { opacity: 0; transition: opacity .05s linear; }
 .about__headline.js-anim.is-revealed .char { opacity: 1; }
 
@@ -370,9 +452,38 @@ img { display: block; max-width: 100%; }
    with opposing depths are separated by a section's padding, which is many
    times the travel. Distances stay short throughout — this is body copy. */
 .scene { --plx-scale: 1; }
-.scene.is-live .plx { transform: translate3d(0, calc(var(--p, 0) * var(--depth, 0) * var(--plx-scale) * 1px), 0); }
+.scene.is-live .plx { transform: translate3d(0, calc(var(--p, 0) * var(--depth, 0) * var(--plx-scale) * 1px + var(--rv-y, 0px)), 0); }
 .scene.is-live .beat:nth-of-type(odd) .plx { --depth: 16; }
 .scene.is-live .beat:nth-of-type(even) .plx { --depth: -12; }
+
+/* ------------------------------ arrival (--rv-y) ------------------------------
+   Depth alone gives the middle of the page texture but no events: eight beats
+   of copy that is simply already there, and a scrollbar that says so. So every
+   block arrives — rises the last stretch of its travel and fades up — the
+   first time it crosses into view, and the pieces of a block arrive one short
+   beat after another. That stagger is the whole trick: a run of figures or
+   numbered stages counting itself in gives the scroll something to be for, and
+   a page that answers back on the way down reads as shorter than a page of the
+   same height that does not.
+
+   Distance is a variable, not a transform, because the blocks that arrive are
+   largely the same blocks that carry depth — one `transform` declaration
+   cannot hold both, and the depth rule above wins the cascade every time. So
+   the rise is published as --rv-y and each rule composes it into its own
+   transform. @property is what makes it a length the browser can interpolate;
+   without the registration it would jump rather than animate.
+
+   `js-rv` is added by ParallaxScene, so no JS and no reduced motion both mean
+   every block renders where it lands. */
+@property --rv-y { syntax: "<length>"; inherits: false; initial-value: 0px; }
+
+.scene.js-rv [data-rv] { --rv-y: 22px; opacity: 0; transform: translate3d(0, var(--rv-y), 0); transition: opacity .62s ease, --rv-y .62s cubic-bezier(.22, .68, .3, 1); transition-delay: calc(var(--rv-i, 0) * 72ms); }
+.scene.js-rv [data-rv].is-rv { --rv-y: 0px; opacity: 1; }
+
+/* The rail is sticky and its heading is the reader's anchor, so it arrives
+   first and shortest — a long rise on a heading that then stays put for the
+   length of the beat reads as the heading being unsure of itself. */
+.scene.js-rv .beat__rail > [data-rv] { --rv-y: 14px; }
 
 /* ============================== CONTACT ============================== */
 .contact { text-align: center; padding-top: clamp(52px, 5.5vw, 96px); padding-bottom: clamp(48px, 5vw, 88px); }
@@ -455,6 +566,10 @@ img { display: block; max-width: 100%; }
   /* Rail and body are now stacked in the same column as everything else, so
      one knob takes all of the content travel down with it. */
   .scene { --plx-scale: .4; }
+  /* Stacked, a beat is twice as many arrivals down one column, so each one
+     is shorter and they follow each other more closely — the same stagger
+     that reads as rhythm across two columns reads as a queue in one. */
+  .scene.js-rv [data-rv] { --rv-y: 16px; transition-duration: .5s; transition-delay: calc(var(--rv-i, 0) * 55ms); }
 }
 
 @media (max-width: 600px) {
@@ -466,12 +581,8 @@ img { display: block; max-width: 100%; }
   .cert { grid-template-columns: 1fr; align-items: start; }
   .cert__media { max-width: 170px; }
 
-  .hero__title { font-size: clamp(2rem, 9.5vw, 2.75rem); }
-  .hero__cue { display: none; }
-  /* The plate is most of the bar's width at this size, so it loses the shadow
-     and keeps only the ground the mark needs. */
-  .logo { padding: 6px 10px; box-shadow: none; }
-  .logo img { height: 40px; }
+  .hero__title { font-size: clamp(1.75rem, 8.2vw, 2.5rem); }
+  .logo__mark { height: 40px; }
   .site-header__cta { min-height: 2.375rem; padding-inline: 14px; font-size: .75rem; }
 
   /* Five or six centred lines is a lot of ragged edge to track on a phone.
@@ -484,25 +595,55 @@ img { display: block; max-width: 100%; }
 }
 
 /* The film's captions are burned in and centred, so a portrait cover-crop
-   slices them in half. Below roughly 5:4 the film is letterboxed instead and
-   the brand green fills around it — keyed to aspect, not width, because that
-   is the condition that actually matters. */
+   slices them in half. Below roughly 5:4 the frame takes the film's own shape
+   instead and the hero becomes three separate things stacked down the screen —
+   keyed to aspect, not width, because that is the condition that actually
+   matters. */
 @media (max-aspect-ratio: 5/4) {
-  /* The film keeps its own 16:9 shape and is anchored just above the controls,
-     with the copy in the band above it — and the hero shortens to fit that
-     composition. Left at 100svh the letterboxed film sat centred with roughly a
-     third of a phone screen of empty green under it. The short hero also lets
-     the first beat peek, which is the scroll cue this end of the page needs. */
-  .hero { min-height: 76vh; min-height: 76svh; }
-  .hero__bg { inset: auto 0 clamp(72px, 11vh, 100px) 0; height: auto; aspect-ratio: 16 / 9; object-fit: contain; }
+  /* The frame stops stretching and simply is 16:9, so the film fills it edge
+     to edge with nothing cropped and nothing letterboxed, and the hero is only
+     as tall as its three parts. The gap above it is the header's: at this
+     aspect the bar covers most of a 16:9 frame's upper third, and the mark
+     sitting on the film's first caption is worse than the mark sitting on the
+     plate. So the film clears the bar rather than running under it, and the
+     hero ends short enough that the first beat peeks — which is the scroll cue
+     this end of the page needs, now that the film is not filling the screen. */
+  .hero { min-height: 0; padding-top: var(--bar); }
+  .hero__film { flex: none; min-height: 0; aspect-ratio: 16 / 9; }
+  .hero__film::before { display: none; }
+  .hero__bg { object-fit: cover; }
+
+  /* Controls tuck into the film's own bottom-right corner. They are the only
+     thing over the video now, and at this size they are the reason the frame
+     is a frame — anywhere else they would take a row from the copy. */
+  .hero__controls { right: 12px; bottom: 12px; gap: .5rem; }
+  .icon-btn { width: 2.5rem; height: 2.5rem; }
+
+  /* The copy is its own block under the film, left-aligned off the same edge —
+     including the support line, which loses the right-hand column it was
+     balancing against. */
+  .hero__content { grid-template-columns: 1fr; padding-block: clamp(22px, 6vw, 40px) clamp(26px, 7vw, 44px); }
+  .hero__aside { align-items: flex-start; text-align: left; }
+  .hero__tagline { max-width: none; }
+  .hero__title { max-width: 16ch; }
+}
+
+/* Below this the field and its button stop sharing a row legibly — the button
+   is a fixed width and what is left over is too narrow to read an address in.
+   They stack inside the same pill rather than becoming two controls. */
+@media (max-width: 480px) {
+  .signup__row { flex-wrap: wrap; }
+  .signup__field, .signup button { flex: 1 0 100%; }
 }
 
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
   *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
   .about__headline.js-anim .char { opacity: 1; }
-  /* ParallaxScene already bails out here; this covers the preference being
-     switched on after the page has loaded. */
+  /* ParallaxScene already bails out here — no depth, and nothing armed to
+     arrive; this covers the preference being switched on after the page has
+     loaded, when both are already running. */
   .scene.is-live .drift { transform: translate3d(-50%, 0, 0); }
   .scene.is-live .plx { transform: none; }
+  .scene.js-rv [data-rv] { --rv-y: 0px; opacity: 1; transform: none; }
 }

@@ -99,20 +99,41 @@ test("the hero is the film and one band of copy", async () => {
   const html = await readFile(RENDERED_HTML_URL, "utf8");
   const hero = slice(html, 'class="hero"', '<div class="scene">');
 
-  // The film's captions are burned in through the middle and lower thirds, so
-  // the hero holds no form and no second call to action — those are the header
-  // CTA and the enquiry card now.
-  assert.doesNotMatch(hero, /<form/, "the hero must not carry a form");
-  assert.doesNotMatch(hero, /class="notify/, "the hero capture form is gone");
   assert.match(hero, /Healing the healthy way/, "the h1 stays in the hero");
+
+  // The plate carries one field and one field only. Nothing of ours is over
+  // the film — that is what the plate is for — so the capture sits under the
+  // headline, asks for an address, and leaves everything else to the enquiry
+  // card. A hero that grows a name, a phone and a purpose is the enquiry card
+  // again, in the worst place for it.
+  const capture = slice(hero, 'class="signup"', "</form>");
+  assert.match(capture, /name="email"/, "the hero capture takes an address");
+  assert.match(capture, /type="email"/, "semantic type, so phones offer the right keyboard");
+  assert.match(capture, /<label class="sr-only" for="hero-email"/, "the field is labelled");
+  const fields = capture.match(/<input(?![^>]*type="hidden")/g) ?? [];
+  assert.equal(fields.length, 2, `hero capture should be one field plus the honeypot, saw ${fields.length}`);
+  assert.match(capture, /class="hp"/, "the honeypot ships with it");
+  // Both posts go to one endpoint and are told apart by `form`; signup is the
+  // email-only path into pervyukt_signups. Losing the discriminator silently
+  // routes hero addresses into the contacts table, or drops them as 400s.
+  const client = await readFile(new URL("../app/interactive.tsx", import.meta.url), "utf8");
+  assert.match(client, /form: "signup"/, "hero capture posts the signup form type");
+  assert.match(client, /form: "contact"/, "enquiry card posts the contact form type");
 
   // The CTA lives in the header instead, pointing at the enquiry card.
   const header = slice(html, 'class="site-header', 'class="hero"');
   assert.match(header, /class="site-header__cta" href="#contact"/);
-  // One mark, on the pale ground it is drawn for: the light variant's forest
-  // quadrant is the hero's own green and a quarter of the logo vanished.
-  assert.match(header, /pervyukt-retail-mark\.png/);
-  assert.doesNotMatch(header, /retail-mark-light/, "the light mark loses its green petals on green");
+  // Both marks, and no plate under either. The bar used to carry the dark mark
+  // on a white box, because the dark wordmark is invisible over the film and
+  // the box was the only ground available. Dropping the box means the bar has
+  // to answer the two grounds the way the identity already does — the light
+  // lockup over the film, the dark one over the solid bar — so both ship in
+  // the markup and cross-fade in place.
+  assert.match(header, /pervyukt-retail-mark-light\.png/, "the film needs the light lockup");
+  assert.match(header, /pervyukt-retail-mark\.png/, "the solid bar needs the dark lockup");
+  // Only one of the two is the logo; the other is its duplicate on the same
+  // link and must not be announced a second time.
+  assert.match(header, /alt=""[^>]*aria-hidden="true"|aria-hidden="true"[^>]*alt=""/);
 });
 
 test("carries the supplied company copy", async () => {
