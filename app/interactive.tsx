@@ -3,9 +3,8 @@
 import Image from "next/image";
 import { Fragment, useEffect, useRef, useState, type FormEvent, type ReactNode } from "react";
 
-// Both forms post to /api/submit, which is the only thing holding a Supabase
-// credential. See app/api/submit/route.ts.
-const LIST_NOTE = "Thanks — we’ll be in touch about working together.";
+// The contact form posts to /api/submit, which is the only thing holding a
+// Supabase credential. See app/api/submit/route.ts.
 const ENQUIRY_NOTE = "Thanks for reaching out — we’ll be in touch.";
 const FALLBACK_ERROR = "Something went wrong — please try again.";
 
@@ -23,7 +22,7 @@ function reader(form: HTMLFormElement) {
 }
 
 /**
- * Submit plumbing shared by both forms: disable while in flight, post, then
+ * Submit plumbing for the enquiry form: disable while in flight, post, then
  * report. Failures surface the server's own message rather than a generic
  * one, so "Invalid phone number" reaches the person who can fix it.
  */
@@ -64,7 +63,16 @@ function useSubmit(
   return { status, busy, onSubmit, statusClass };
 }
 
-/** Transparent over the hero, solid white with the dark lockup once past it. */
+/**
+ * Transparent over the hero, solid white once past it.
+ *
+ * Two things ride on `is-scrolled`. The CTA only appears with the steady bar —
+ * over the film there is deliberately nothing to click, so the hero stays a
+ * single image. And the logo carries a pale plate until then: the retail
+ * mark's forest quadrant is the hero's own green, so a quarter of it vanishes
+ * against the film exactly as the emblem does on the mission plate. Once the
+ * bar itself is white the plate has nothing left to do and fades out.
+ */
 export function SiteHeader() {
   const ref = useRef<HTMLElement>(null);
   const [scrolled, setScrolled] = useState(false);
@@ -73,8 +81,12 @@ export function SiteHeader() {
     const header = ref.current;
     const hero = document.querySelector(".hero");
     if (!header || !hero) return;
-    // Solid once the hero's bottom edge has passed under the header.
-    const onScroll = () => setScrolled(hero.getBoundingClientRect().bottom <= header.offsetHeight);
+    // Solid a little before the hero's bottom edge reaches the header, not at
+    // it: the hero's scroll cue sits at its bottom-left, which is the logo's
+    // corner, and it would otherwise slide under a still-transparent bar and
+    // collide with the mark. Going white early covers it instead.
+    const onScroll = () =>
+      setScrolled(hero.getBoundingClientRect().bottom <= header.offsetHeight + 48);
     onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
     window.addEventListener("resize", onScroll, { passive: true });
@@ -88,9 +100,12 @@ export function SiteHeader() {
     <header ref={ref} className={`site-header${scrolled ? " is-scrolled" : ""}`}>
       <div className="site-header__inner container">
         <a className="logo" href="#top" aria-label="PARVYUKT home">
-          <Image className="logo__img--light" src="/pervyukt-retail-mark-light.png" alt="PARVYUKT" width={1089} height={662} priority />
-          <Image className="logo__img--dark" src="/pervyukt-retail-mark.png" alt="" width={1089} height={662} loading="eager" />
+          <Image src="/pervyukt-retail-mark.png" alt="PARVYUKT" width={1089} height={662} priority />
         </a>
+        {/* Hidden rather than unmounted, so the arrival is a transition and not
+            a reflow of the bar. visibility:hidden also keeps it out of the tab
+            order while it is invisible. */}
+        <a className="site-header__cta" href="#contact">Partner with us</a>
       </div>
     </header>
   );
@@ -165,27 +180,6 @@ export function HeroVideo() {
   );
 }
 
-/** Hero email capture. */
-export function NotifyForm() {
-  const { status, busy, onSubmit, statusClass } = useSubmit(
-    (get) => ({ form: "signup", email: get("email").toLowerCase(), website: get("website") }),
-    LIST_NOTE,
-  );
-
-  return (
-    <>
-      <form className="notify" onSubmit={onSubmit}>
-        <label className="sr-only" htmlFor="notify-email">Email address</label>
-        <input id="notify-email" type="email" name="email" placeholder="Email address" autoComplete="email" required />
-        <Honeypot />
-        <button type="submit" disabled={busy}><span>{busy ? "Sending…" : "Partner with us"}</span></button>
-      </form>
-      <p className="hero__note">Build the future with us — partnerships, distribution and research collaboration.</p>
-      <p className={statusClass} role="status" aria-live="polite">{status?.text ?? ""}</p>
-    </>
-  );
-}
-
 /**
  * Off-screen, skipped by keyboard, ignored by autofill — so a human never
  * fills it and a form-filling bot always does. A non-empty `website` is
@@ -204,6 +198,25 @@ function Honeypot() {
 }
 
 const MESSAGE_LIMIT = 200;
+
+/**
+ * Label and control. The label stays visible: a placeholder vanishes the
+ * moment someone types, which is exactly when they want to check what the
+ * field was — and on the dark card a translucent placeholder was reading at
+ * 2.3:1 besides. Format hints stay in the placeholder, where they belong.
+ */
+function Field({ id, label, required, children }: {
+  id: string; label: string; required?: boolean; children: ReactNode;
+}) {
+  return (
+    <div className="f">
+      {/* The asterisk is decorative — `required` on the control is what
+          assistive tech announces. */}
+      <label htmlFor={id}>{label}{required ? <span className="f__req" aria-hidden="true"> *</span> : null}</label>
+      {children}
+    </div>
+  );
+}
 
 /** Enquiry card in the contact section. */
 export function ContactForm() {
@@ -225,41 +238,48 @@ export function ContactForm() {
   return (
     <form className="contact__form" onSubmit={onSubmit}>
       <div className="contact__fields">
-        <label className="sr-only" htmlFor="contact-name">Full name</label>
-        <input className="field" id="contact-name" type="text" name="name" placeholder="Full name" autoComplete="name" required />
+        <p className="contact__req"><span className="f__req" aria-hidden="true">*</span> Required</p>
+
+        <Field id="contact-name" label="Full name" required>
+          <input className="field" id="contact-name" type="text" name="name" autoComplete="name" required />
+        </Field>
 
         <div className="row">
-          <label className="sr-only" htmlFor="contact-email">Email address</label>
-          <input className="field" id="contact-email" type="email" name="email" placeholder="Email address" autoComplete="email" required />
-          <label className="sr-only" htmlFor="contact-mobile">Phone</label>
-          <input className="field" id="contact-mobile" type="tel" name="mobile" placeholder="Phone" autoComplete="tel" />
+          <Field id="contact-email" label="Email address" required>
+            <input className="field" id="contact-email" type="email" name="email" placeholder="you@company.com" autoComplete="email" required />
+          </Field>
+          <Field id="contact-mobile" label="Phone">
+            <input className="field" id="contact-mobile" type="tel" name="mobile" placeholder="+91 98765 43210" autoComplete="tel" />
+          </Field>
         </div>
 
-        <div className="select-field">
-          <label className="sr-only" htmlFor="contact-purpose">What brings you here</label>
-          <select className="field" id="contact-purpose" name="purpose" defaultValue="">
-            <option value="" disabled hidden>What brings you here?</option>
-            <option>Partnership or investment</option>
-            <option>Distribution or manufacturing</option>
-            <option>Research collaboration</option>
-            <option>Press</option>
-            <option>Careers</option>
-            <option>General enquiry</option>
-          </select>
-        </div>
+        <Field id="contact-purpose" label="What brings you here">
+          <div className="select-field">
+            <select className="field" id="contact-purpose" name="purpose" defaultValue="">
+              <option value="" disabled hidden>Choose one</option>
+              <option>Partnership or investment</option>
+              <option>Distribution or manufacturing</option>
+              <option>Research collaboration</option>
+              <option>Press</option>
+              <option>Careers</option>
+              <option>General enquiry</option>
+            </select>
+          </div>
+        </Field>
 
-        <div className="textarea-field">
-          <label className="sr-only" htmlFor="contact-message">Message</label>
-          <textarea
-            className="field"
-            id="contact-message"
-            name="message"
-            maxLength={MESSAGE_LIMIT}
-            placeholder="Tell us more (optional)"
-            onChange={(event) => setCount(event.target.value.length)}
-          />
-          <span className="count">{count}/{MESSAGE_LIMIT}</span>
-        </div>
+        <Field id="contact-message" label="Message">
+          <div className="textarea-field">
+            <textarea
+              className="field"
+              id="contact-message"
+              name="message"
+              maxLength={MESSAGE_LIMIT}
+              placeholder="Tell us more — optional"
+              onChange={(event) => setCount(event.target.value.length)}
+            />
+            <span className="count" aria-hidden="true">{count}/{MESSAGE_LIMIT}</span>
+          </div>
+        </Field>
 
         <Honeypot />
 

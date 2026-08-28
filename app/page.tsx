@@ -1,5 +1,9 @@
 import Image from "next/image";
-import { AboutHeadline, ContactForm, HeroVideo, NotifyForm, ParallaxScene, SiteHeader } from "./interactive";
+import { AboutHeadline, ContactForm, HeroVideo, ParallaxScene, SiteHeader } from "./interactive";
+
+// The flagship personal-care brand has its own site; the panel in #impact is
+// the one outbound link on the page.
+const PESHAGI_URL = "https://peshagi.com";
 
 const VISION = "Innovate, provide, and inspire every human to find happiness through natural healing";
 
@@ -41,21 +45,19 @@ export default function Home() {
       <SiteHeader />
       <main id="top">
 
-      {/* ============================== HERO ============================== */}
+      {/* ============================== HERO ==============================
+          The film carries its own burned-in captions through the middle and
+          lower thirds, so everything of ours sits in the top band above them:
+          one eyebrow, one headline, one line of support. The capture form that
+          used to sit here has moved to the header CTA and the contact section,
+          which is the only place a form now appears. */}
       <section className="hero">
         <HeroVideo />
 
-        {/* Two bands, top and bottom. The film carries its own burned-in
-            captions through the middle, so nothing of ours sits there. */}
         <div className="hero__content">
-          <div className="hero__lead">
-            <p className="label label--air hero__eyebrow">India’s first vertically integrated medicinal mushroom wellness platform</p>
-            <h1 className="hero__title">Healing the healthy way.</h1>
-            <p className="hero__tagline">From Himalayan farms to your daily life.</p>
-          </div>
-          <div className="hero__action">
-            <NotifyForm />
-          </div>
+          <p className="label label--air hero__eyebrow">India’s first vertically integrated medicinal mushroom wellness platform</p>
+          <h1 className="hero__title">Healing the healthy way.</h1>
+          <p className="hero__tagline">From Himalayan farms to your daily life.</p>
         </div>
 
         <p className="label hero__cue">
@@ -65,45 +67,57 @@ export default function Home() {
         </p>
       </section>
 
-      {/* ========================= ACT I — IDENTITY =========================
-          Who we are and the vision share one grid, and the mission follows as a
-          compact two-column band instead of a full-height centred plate. Two
-          screens of scroll become a little over one. */}
+      {/* ============================== BEATS ==============================
+          One idea per beat, and one spine down the page: a heading rail on the
+          left, its own body on the right. Nothing sits beside anything it is
+          not about — the two full-width plates (vision, mission) and the media
+          inside a body are the only things that break the rail's rhythm. */}
       <ParallaxScene>
 
-      <section className="act container" id="story">
-        <div className="act__intro">
-          <div className="act__lede">
-            <h2 className="script act__script">Who we are</h2>
-            <div className="prose prose--justify">
-              <p className="is-lede">
-                Pervyukt Agrinnovaters is a purpose-driven preventive healthcare Agri-innovation company,
-                founded in 2021.
-              </p>
-              <p>
-                We focus on “skin-to-stomach” solutions that start at the farm and culminate in high-value
-                wellness products — pioneering integrated specialty medicinal mushroom cultivation and allied
-                Agri-activities, with a strong emphasis on biotechnology-driven research and premium personal
-                care, nutraceutical and food-and-beverage offerings.
-              </p>
-              <p>
-                Guided by the philosophy <strong>“Healing The Healthy Way”</strong>, PARVYUKT exists to help
-                people move from chronic lifestyle stress and deficiencies towards sustainable,
-                nature-aligned wellbeing.
-              </p>
-            </div>
-          </div>
-
-          <div className="act__figure">
-            <AboutHeadline text={VISION} />
-          </div>
+      {/* ------------------------------ identity ------------------------------ */}
+      <section className="beat container" id="story">
+        <div className="beat__rail">
+          <p className="label label--water">Pervyukt Agrinnovaters</p>
+          <h2 className="script beat__script">Who we are</h2>
         </div>
 
-        {/* Mission — was a 25rem-tall centred plate, now a band. */}
+        {/* No .plx here: the hero and this first beat are the reader's
+            footing, and copy that shifts underneath them costs more than the
+            depth is worth. Content depth starts at "Why medicinal mushrooms". */}
+        <div className="beat__body">
+          <div className="prose">
+            <p className="is-lede">
+              Pervyukt Agrinnovaters is a purpose-driven preventive healthcare Agri-innovation company,
+              founded in 2021.
+            </p>
+            <p>
+              We focus on “skin-to-stomach” solutions that start at the farm and culminate in high-value
+              wellness products — pioneering integrated specialty medicinal mushroom cultivation and allied
+              Agri-activities, with a strong emphasis on biotechnology-driven research and premium personal
+              care, nutraceutical and food-and-beverage offerings.
+            </p>
+            <p>
+              Guided by the philosophy <strong>“Healing The Healthy Way”</strong>, PARVYUKT exists to help
+              people move from chronic lifestyle stress and deficiencies towards sustainable,
+              nature-aligned wellbeing.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      {/* Vision — a statement, so it gets the full width and no neighbour. */}
+      <section className="plate container" id="vision">
+        <p className="label label--air">Our vision</p>
+        <AboutHeadline text={VISION} />
+      </section>
+
+      {/* Mission — the same treatment on a dark ground, the same rail-and-body split
+          as a beat: the mark, label and values against the statement itself. */}
+      <section className="plate container">
         <aside className="mission">
           <span className="drift drift--glow" aria-hidden="true" />
           <div className="mission__side">
-            {/* Decorative: PARVYUKT is named in the copy either side of it. */}
+            {/* Decorative: PARVYUKT is named in the statement beside it. */}
             <Image className="mission__emblem" src="/pervyukt-emblem.png" alt="" width={586} height={589} />
             <p className="label label--air">Our mission</p>
             <ul className="mission__values">
@@ -114,23 +128,19 @@ export default function Home() {
         </aside>
       </section>
 
-      {/* ===================== ACT II — CATEGORY & PLATFORM =====================
-          The problem and the answer to it, under one pinned heading. The market
-          figures sit on a tinted band with a decorative layer drifting behind
-          them; the caveat becomes a margin pull-quote rather than a full
-          paragraph of its own. */}
-      <section className="act act--pinned container" id="mushrooms">
-        <div className="act__head">
+      {/* ------------------------------ category ------------------------------ */}
+      <section className="beat container" id="mushrooms">
+        <div className="beat__rail">
           <p className="label label--water">Why medicinal mushrooms</p>
-          <h2>A credible bridge between tradition and evidence.</h2>
-          <p className="act__note">
+          <h2>Medicinal mushrooms bridge traditional wisdom and modern evidence.</h2>
+          <p className="beat__note">
             Consumers still face low trust, uneven sourcing and inconsistent quality. PARVYUKT focuses only
             on high-value functional mushrooms, on a science-anchored platform — not a broad “everything
             wellness” story.
           </p>
         </div>
 
-        <div className="act__body">
+        <div className="beat__body">
           <div className="prose plx">
             <p>
               For centuries, fungi have been revered in folk medicine. Today, medicinal mushrooms are one of
@@ -154,13 +164,18 @@ export default function Home() {
               ))}
             </dl>
           </div>
+        </div>
+      </section>
 
-          <div className="turn plx" id="platform">
-            <span className="drift drift--haze" aria-hidden="true" />
-            <div className="turn__head">
-              <p className="label label--air">Our integrated wellness platform</p>
-              <h3>From spawn to shelf.</h3>
-            </div>
+      {/* ------------------------------ platform ------------------------------ */}
+      <section className="beat container" id="platform">
+        <div className="beat__rail">
+          <p className="label label--air">Our integrated wellness platform</p>
+          <h2>We control the chain from spawn to shelf.</h2>
+        </div>
+
+        <div className="beat__body">
+          <div className="turn plx">
             <p>
               A vertically integrated medicinal mushroom platform that starts with controlled cultivation and
               moves up the value chain into premium branded natural healing products — a unified,
@@ -180,39 +195,37 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ======================== ACT III — THE PROOF ========================
-          Science and rural impact were two full sections; both are evidence, so
-          they pair off. The certificate and the PESHAGI mark are media, which
-          makes them the two places parallax belongs — each clipped by its own
-          frame so a drifting layer can never escape into the copy. */}
-      <section className="act container" id="science">
-        <div className="act__pair">
-          <div className="act__col plx">
-            <p className="label label--water">Science, technology and standards</p>
-            <h2>Biotechnology-led, compliance-first.</h2>
-            <div className="prose">
-              <p>
-                Our biotechnology and nano-technology-based <strong>MDEN research</strong> pursues substantially
-                higher beta-glucan content and enhanced bioactive potency in proprietary strains of Turkey Tail
-                and Lion’s Mane.
-              </p>
-              <p>
-                Early lab work at IIT and partnering institutions has shown encouraging signals around
-                anti-cancer and neuroprotective potential in controlled cell-line studies, evaluated further
-                under the supervision of an advisory board spanning cancer research, neuroscience,
-                biotechnology, rural development and women’s empowerment.
-              </p>
-            </div>
+      {/* ------------------------------- science ------------------------------- */}
+      <section className="beat container" id="science">
+        <div className="beat__rail">
+          <p className="label label--water">Science, technology and standards</p>
+          <h2>Biotechnology leads the work, and compliance sets its limits.</h2>
+        </div>
+
+        <div className="beat__body">
+          <div className="prose plx">
+            <p>
+              Our biotechnology and nano-technology-based <strong>MDEN research</strong> pursues substantially
+              higher beta-glucan content and enhanced bioactive potency in proprietary strains of Turkey Tail
+              and Lion’s Mane.
+            </p>
+            <p>
+              Early lab work at IIT and partnering institutions has shown encouraging signals around
+              anti-cancer and neuroprotective potential in controlled cell-line studies, evaluated further
+              under the supervision of an advisory board spanning cancer research, neuroscience,
+              biotechnology, rural development and women’s empowerment.
+            </p>
             <p className="claim">
               We make only responsible, regulation-aligned claims. Commercial products are positioned as
               supportive wellness offerings, not as medical treatments.
             </p>
           </div>
 
+          {/* Media supporting the copy directly above it — the certificate is
+              what the standards claim rests on, so this pair belongs. */}
           <figure className="cert plx">
             <span className="cert__media">
               <Image
-                className="drift drift--cert"
                 src="/iso-9001-certificate.jpg"
                 alt="ISO 9001:2015 certificate of registration for Pervyukt Agrinnovaters Private Limited"
                 width={724}
@@ -226,54 +239,61 @@ export default function Home() {
             </figcaption>
           </figure>
         </div>
+      </section>
 
-        <div className="act__pair act__pair--flip" id="impact">
-          <div className="act__col plx">
-            <p className="label label--fire">Rural impact and Himalayan bio-resources</p>
-            <h2>Better wellbeing begins with better livelihoods.</h2>
-            <div className="prose">
-              <p>
-                Rooted in India’s agricultural heartland, PARVYUKT fosters preventive healthcare from the
-                grassroots — turning farming livelihoods and local bio-resources into high-value wellness
-                platforms.
-              </p>
-              <p>
-                Our model links women farmers in the hills of Uttarakhand to an alternative, high-value crop
-                through spawn-to-shelf upskilling, renewable-energy cropping-room designs and resilient rural
-                development pathways.
-              </p>
-            </div>
+      {/* ------------------------------- impact ------------------------------- */}
+      <section className="beat container" id="impact">
+        <div className="beat__rail">
+          <p className="label label--fire">Rural impact and Himalayan bio-resources</p>
+          <h2>Better wellbeing begins with better livelihoods.</h2>
+        </div>
+
+        <div className="beat__body">
+          <div className="prose plx">
+            <p>
+              Rooted in India’s agricultural heartland, PARVYUKT fosters preventive healthcare from the
+              grassroots — turning farming livelihoods and local bio-resources into high-value wellness
+              platforms.
+            </p>
+            <p>
+              Our model links women farmers in the hills of Uttarakhand to an alternative, high-value crop
+              through spawn-to-shelf upskilling, renewable-energy cropping-room designs and resilient rural
+              development pathways.
+            </p>
           </div>
 
-          <aside className="peshagi plx">
-            <div className="peshagi__mark">
+          <a className="peshagi plx" href={PESHAGI_URL} target="_blank" rel="noopener noreferrer">
+            <span className="peshagi__mark">
               <span className="drift drift--mark" aria-hidden="true" />
               <Image src="/logo_word_dark.svg" alt="PESHAGI" width={164} height={50} />
-            </div>
-            <div className="peshagi__copy">
-              <p className="label label--water">Extending the ecosystem</p>
-              <p>
+            </span>
+            <span className="peshagi__copy">
+              <span className="label label--water">Extending the ecosystem</span>
+              <span className="peshagi__text">
                 Under its flagship brand <strong>PESHAGI</strong>, PARVYUKT has developed a 100% natural
                 premium personal-care range built around Himalayan Seabuckthorn — the same
                 science-anchored, AYUSH-aligned approach applied to broader Himalayan bio-resources.
-              </p>
-            </div>
-          </aside>
+              </span>
+              <span className="peshagi__go">
+                Visit peshagi.com
+                <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                  <path d="M6 18 18 6M9 6h9v9" />
+                </svg>
+              </span>
+            </span>
+          </a>
         </div>
       </section>
 
-      {/* ==================== ACT IV — REACH AND MEANING ====================
-          Who we serve, the founder and the name were three stacked beats. The
-          audiences keep the full width they need to stay readable; the founder
-          and the meaning of PARVYUKT run side by side underneath. */}
-      <section className="act container" id="meaning">
-        <div className="serve">
-          <div className="serve__head plx">
-            <p className="label">Who we serve</p>
-            <h2>Wellness is stronger when it is shared.</h2>
-          </div>
+      {/* ------------------------------ audiences ------------------------------ */}
+      <section className="beat container" id="audiences">
+        <div className="beat__rail">
+          <p className="label">Who we serve</p>
+          <h2>Wellness is stronger when it is shared.</h2>
+        </div>
 
-          <ul className="serve__list plx">
+        <div className="beat__body">
+          <ul className="audiences plx">
             {AUDIENCES.map(([title, text], index) => (
               <li key={title}>
                 <span>{String(index + 1).padStart(2, "0")}</span>
@@ -283,25 +303,43 @@ export default function Home() {
             ))}
           </ul>
         </div>
+      </section>
 
-        <div className="act__pair act__pair--even">
+      {/* ----------------------------- leadership ----------------------------- */}
+      <section className="beat container" id="leadership">
+        <div className="beat__rail">
+          <p className="label label--fire">Founder and leadership</p>
+          <h2>Two decades of international experience meet a decade in medicinal mushroom research.</h2>
+        </div>
+
+        <div className="beat__body">
           <div className="founder plx">
-            <span className="drift drift--bloom" aria-hidden="true" />
-            <p className="label label--fire">Founder and leadership edge</p>
-            <h3>Two decades international. A decade in medicinal mushroom research.</h3>
-            <p>
-              Founder, MD &amp; CEO <strong>Rrahul Dalmia</strong> brings experience across Wall Street
-              finance, strategy consulting at Microsoft, media with Doordarshan and health-tech
-              entrepreneurship — blending operating ambition with category education, premium positioning
-              and strategic partnership-building.
-            </p>
+            <div className="prose">
+              <p>
+                Founder, MD &amp; CEO <strong>Rrahul Dalmia</strong> brings experience across Wall Street
+                finance, strategy consulting at Microsoft, media with Doordarshan and health-tech
+                entrepreneurship.
+              </p>
+              <p>
+                That range is what lets PARVYUKT hold operating ambition, category education, premium
+                positioning and strategic partnership-building together in one company.
+              </p>
+            </div>
           </div>
+        </div>
+      </section>
 
+      {/* ------------------------------- meaning ------------------------------- */}
+      <section className="beat container" id="meaning">
+        <div className="beat__rail">
+          <p className="label label--air">Meaning of PARVYUKT</p>
+          <h2>PARVYUKT means full of festivities.</h2>
+        </div>
+
+        <div className="beat__body">
           <div className="meaning plx">
-            <p className="label label--air">Meaning of PARVYUKT</p>
-            <h3>Full of festivities.</h3>
             <p className="lede">
-              A joyful union of cultures, traditions and contributions that shape who you are.
+              It names a joyful union of cultures, traditions and contributions that shape who you are.
             </p>
             <p>
               Rooted in the ancient Dev Bhasha Sanskrit, <strong>“Parv / Perv”</strong> signifies festival
@@ -326,7 +364,7 @@ export default function Home() {
 
       {/* ============================= CONTACT ============================= */}
       <section className="contact container" id="contact">
-        <h2 className="script contact__title">Let’s shape the next chapter</h2>
+        <h2 className="script contact__title">Let’s shape the next chapter together</h2>
         <p className="contact__lede">
           PARVYUKT is seeking strategic partnerships that bring more than capital — distribution strength,
           manufacturing leverage, category-building experience and institutional reach.
@@ -344,8 +382,6 @@ export default function Home() {
         <span>© {new Date().getFullYear()} Pervyukt Agrinnovaters Private Limited</span>
         <i aria-hidden="true" />
         <span>Healing The Healthy Way</span>
-        <i aria-hidden="true" />
-        <span>Uttarakhand, India</span>
       </footer>
     </>
   );

@@ -2,11 +2,17 @@
 
 /* =====================================================================
    PARVYUKT — landing page.
-   Layout: fixed logo-only header, a full-screen media hero with a centred
-   capture form, a two-column about whose right side is an image-filled
-   headline, a full-width statement plate, and a dark enquiry card over a
-   thin brand-green footer.
-   Type: Poppins (body/UI) + Newsreader (display + script accents).
+
+   Layout: a fixed logo-only header that turns solid and grows a CTA once the
+   hero is behind it; a full-screen film hero whose only copy sits in the top
+   band, clear of the film's own burned-in captions; then the page's spine —
+   a run of "beats", each one a sticky heading rail on the left and its own
+   body on the right, so nothing ever sits beside content it is not about.
+   Two full-width plates (vision, mission) and a centred enquiry card break
+   that rhythm on purpose.
+
+   Type: Poppins (body/UI + display) + Shotflick Demo (script accents),
+   the same two families the Peshagi landing page uses.
    ===================================================================== */
 
 :root {
@@ -24,131 +30,213 @@
   --forest-deep: #002A25;   /* forest darkened, for the plate and form card */
   --paper: #FCFAF3;        /* identity off-white, for alternating bands */
   --ink-soft: #5B5A5C;      /* ink toward the grey, for body copy */
+  /* The petals are drawn for dark grounds. On white, --air lands at 1.7:1 and
+     --water at 2.8:1 — an 11px uppercase label in either is effectively
+     unreadable, which is what the eyebrows all over the page are. So labels on
+     a light ground use a darkened tint of the same hue (both ~4.7:1) and the
+     pure petal is kept for the dark plates, where it is doing its job. */
+  --water-ink: #0A7F8C;   /* 4.74:1 on white */
+  --air-ink: #9A6A00;     /* 4.73:1 on white */
+  --fire-ink: #C93B21;    /* 5.08:1 on white; --fire itself is 3.85 */
+  /* The identity's secondary grey is 3.0:1 on white — below the threshold for
+     the 11px uppercase eyebrows it was carrying. Darkened for text; --muted
+     stays for non-text furniture. */
+  --ink-muted: #6E7073;   /* 4.97:1 on white */
   --line: rgba(35, 31, 32, .14);
-  --field: rgba(255, 255, 255, .86);
-  --max: 1920px;
+  /* Opaque. Translucent over the dark enquiry card, placeholder text landed at
+     2.3:1 — the card showing through was eating the contrast. */
+  --field: #F6F7F7;
+  /* Was 1920. At that width the heading rail ran ~570px against headings
+     capped at 22ch, so every beat carried ~170px of dead gutter inside the
+     rail itself. Nothing below 1600 changes. */
+  --max: 1600px;
   --pad: clamp(20px, 6.25vw, 120px);   /* 120px gutters at 1920 */
+  --bar: clamp(76px, 8vw, 104px);      /* the fixed header's own height */
 }
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
 html { font-size: 16px; scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
-body { background: #fff; color: var(--ink); font-family: var(--font-sans), system-ui, sans-serif; line-height: 1.5; overflow-x: hidden; }
+/* clip, not hidden: `overflow-x: hidden` on the body makes it a scroll
+   container, which silently kills every `position: sticky` rail below. */
+body { background: #fff; color: var(--ink); font-family: var(--font-sans), system-ui, sans-serif; line-height: 1.5; overflow-x: hidden; overflow-x: clip; }
 a { color: inherit; text-decoration: none; }
 img { display: block; max-width: 100%; }
 ::selection { background: var(--air); color: var(--forest); }
 
+/* The header is fixed, so an anchor jump would otherwise land the section's
+   first line underneath it — and put a focused control out of sight. */
+[id] { scroll-margin-top: var(--bar); }
+
 .container { width: 100%; max-width: var(--max); margin-inline: auto; padding-inline: var(--pad); }
 
-/* Script accent used for the two section titles. */
-.script { font-family: var(--font-serif), Georgia, serif; font-style: italic; font-weight: 400; color: var(--forest); line-height: 1.1; letter-spacing: -.015em; }
+/* Script accent face, for the two places a heading is written by hand. */
+.script { font-family: var(--font-script), var(--font-sans), cursive; font-weight: 400; color: var(--forest); line-height: 1.1; letter-spacing: -.015em; }
 
-/* Small-caps label, used for every eyebrow on the page. The modifiers carry a
-   petal colour, so each section is tagged with one of the logo's four. */
-.label { font-size: .6875rem; font-weight: 600; text-transform: uppercase; letter-spacing: .16em; color: var(--muted); }
-.label--fire { color: var(--fire); }
-.label--water { color: var(--water); }
-.label--air { color: var(--air); }
-
+/* Eyebrow labels, tinted per petal. */
+.label { font-size: .6875rem; font-weight: 600; text-transform: uppercase; letter-spacing: .16em; color: var(--ink-muted); }
+.label--fire { color: var(--fire-ink); }
+.label--water { color: var(--water-ink); }
+.label--air { color: var(--air-ink); }
+/* On the dark plates the petal itself is the high-contrast choice. */
+.hero .label--air, .mission .label--air { color: var(--air); }
+.hero .label--fire, .mission .label--fire { color: var(--fire); }
 
 /* ============================== HEADER ==============================
-   Transparent over the hero, solid white with the dark lockup once the
-   hero has scrolled past (`.is-scrolled`, toggled in SiteHeader). */
-.site-header { position: fixed; inset: 0 0 auto; z-index: 50; background: transparent; transition: background .3s ease, box-shadow .3s ease; }
-.site-header__inner { display: flex; align-items: center; padding-block: clamp(14px, 1.8vw, 24px); transition: padding .3s ease; }
-.site-header.is-scrolled { background: #fff; box-shadow: 0 1px 0 var(--line); }
-.site-header.is-scrolled .site-header__inner { padding-block: clamp(10px, 1.3vw, 16px); }
+   Transparent over the hero, solid white past it. Both states are driven by
+   `is-scrolled`, which SiteHeader sets from the hero's bottom edge.
 
-.logo { display: inline-flex; align-items: center; }
-.logo img { height: clamp(48px, 4.2vw, 72px); width: auto; }
-.logo__img--dark { display: none; }
-.site-header.is-scrolled .logo__img--light { display: none; }
-.site-header.is-scrolled .logo__img--dark { display: block; }
+   The solid bar carries no rule of its own. Every beat already opens on a
+   hairline, and an anchor jump lands that hairline a few pixels below the bar's
+   own — two parallel lines under the header, which reads as a mistake rather
+   than as a boundary. The white bar is boundary enough; copy passes under it. */
+.site-header { position: fixed; inset: 0 0 auto; z-index: 50; background: transparent; transition: background .3s ease; }
+.site-header__inner { display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding-block: clamp(12px, 1.5vw, 20px); transition: padding .3s ease; }
+.site-header.is-scrolled { background: #fff; }
+.site-header.is-scrolled .site-header__inner { padding-block: clamp(9px, 1.1vw, 14px); }
 
-/* =============================== HERO =============================== */
+/* The retail mark's forest quadrant is #003C36 — the hero's own green — so
+   over the film a quarter of the mark disappears and the other three petals
+   read as an L. It is the same problem the emblem has on the mission plate,
+   and it gets the same answer: the pale ground the mark is drawn for. Only
+   the plate's colour animates, never its padding, so the mark does not shift
+   as the bar goes white and the plate stops being needed. */
+.logo { display: inline-flex; align-items: center; padding: clamp(6px, .7vw, 10px) clamp(10px, 1.1vw, 16px); border-radius: .5rem; background: rgba(255, 255, 255, .95); box-shadow: 0 8px 24px -10px rgba(0, 42, 37, .5); transition: background .3s ease, box-shadow .3s ease; }
+.site-header.is-scrolled .logo { background: transparent; box-shadow: none; }
+.logo img { height: clamp(42px, 3.6vw, 62px); width: auto; }
+.logo:focus-visible { outline: 2px solid var(--water); outline-offset: 3px; }
+
+/* The one CTA above the fold's end. It arrives with the steady bar — over the
+   film there is deliberately nothing to click — and is hidden rather than
+   unmounted so the arrival is a transition, not a reflow of the bar.
+   visibility also keeps it out of the tab order while it is invisible. */
+.site-header__cta { flex: none; display: inline-flex; align-items: center; min-height: 2.75rem; padding-block: .5rem; padding-inline: clamp(16px, 1.6vw, 28px); border-radius: .25rem; background: var(--forest); color: #fff; font: 500 .8125rem var(--font-sans), sans-serif; letter-spacing: .02em; white-space: nowrap; opacity: 0; visibility: hidden; transform: translateY(-6px); transition: opacity .3s ease, transform .3s ease, visibility .3s, background .2s ease, box-shadow .25s ease; }
+.site-header.is-scrolled .site-header__cta { opacity: 1; visibility: visible; transform: none; }
+.site-header__cta:hover { background: var(--forest-mid); box-shadow: 0 12px 26px -10px rgba(0, 42, 37, .5); }
+.site-header__cta:focus-visible { outline: 2px solid var(--water); outline-offset: 2px; }
+
+/* =============================== HERO ===============================
+   Film, and one band of copy above the film's own captions. Nothing else:
+   the capture form that used to sit here is now the header CTA and the
+   enquiry card, so the hero reads as a single image. */
 .hero { position: relative; display: flex; flex-direction: column; min-height: 100vh; min-height: 100svh; overflow: hidden; color: #fff; background: var(--forest); }
+/* The hero is full-bleed and so cannot use .container, but its copy still has
+   to start on the container's left edge — otherwise past --max the headline
+   sits 160px left of the logo above it and the heading rail below it. 100%
+   here is the hero's own width, so it tracks the viewport, not 100vw and the
+   scrollbar. */
+.hero { --gutter: max(var(--pad), calc((100% - var(--max)) / 2 + var(--pad))); }
 .hero__bg { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: 0; }
-/* Film controls, bottom right — the badge keeps the left corner. */
-.hero__controls { position: absolute; right: var(--pad); bottom: clamp(24px, 4vw, 56px); z-index: 3; display: flex; gap: .75rem; }
-.icon-btn { width: 2.5rem; height: 2.5rem; display: grid; place-items: center; padding: 0; border: 1px solid rgba(255, 255, 255, .3); border-radius: 50%; background: rgba(0, 42, 37, .35); color: #fff; cursor: pointer; opacity: .9; transition: opacity .2s ease, border-color .2s ease, background .2s ease; }
+
+/* A scrim rather than text-shadow alone: the copy has to hold against every
+   frame of the film, and the film's brightest frames are its wide daylight
+   shots. Fades out well before the film's first burned-in caption. */
+.hero::before { content: ""; position: absolute; inset: 0 0 auto; height: 66%; z-index: 1; background: linear-gradient(180deg, rgba(0, 42, 37, .8), rgba(0, 42, 37, .46) 42%, transparent); pointer-events: none; }
+
+.hero__controls { position: absolute; right: var(--gutter); bottom: clamp(24px, 4vw, 56px); z-index: 3; display: flex; gap: .75rem; }
+.icon-btn { width: 2.75rem; height: 2.75rem; display: grid; place-items: center; padding: 0; border: 1px solid rgba(255, 255, 255, .3); border-radius: 50%; background: rgba(0, 42, 37, .35); color: #fff; cursor: pointer; opacity: .9; transition: opacity .2s ease, border-color .2s ease, background .2s ease; }
 .icon-btn:hover { opacity: 1; border-color: var(--air); background: rgba(0, 42, 37, .6); }
 .icon-btn.is-off { opacity: .55; }
 .icon-btn svg { width: 1.125rem; height: 1.125rem; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
 .icon-btn svg .solid { fill: currentColor; stroke: none; }
 .icon-btn:focus-visible { outline: 2px solid var(--air); outline-offset: 2px; }
-.hero__content { position: relative; z-index: 2; flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: space-between; gap: 2rem; text-align: center; padding-inline: var(--pad); padding-block: clamp(6.5rem, 15vh, 9.5rem) clamp(5rem, 11vh, 7rem); }
-.hero__lead, .hero__action { display: flex; flex-direction: column; align-items: center; width: 100%; }
-/* No scrim sits on the film, so legibility rides on the type itself: the
-   opening and the sunrise end-card are pale enough that unshadowed white drops
-   to ~1.3:1 against them. This keeps the footage untouched. */
-.hero__lead, .hero__note, .hero__cue { text-shadow: 0 1px 2px rgba(0, 42, 37, .5), 0 2px 18px rgba(0, 42, 37, .55); }
-.hero__eyebrow { margin-bottom: clamp(18px, 2.2vw, 32px); }
-.hero__title { font-family: var(--font-serif), Georgia, serif; font-weight: 500; font-size: clamp(2.35rem, 7.6vw, 96px); line-height: 1.02; letter-spacing: -.035em; max-width: 20ch; }
-.hero__tagline { margin-top: clamp(10px, 1.4vw, 20px); font-family: var(--font-serif), Georgia, serif; font-size: clamp(1.05rem, 1.9vw, 28px); line-height: 1.3; letter-spacing: -.015em; color: rgba(255, 255, 255, .92); }
-.hero__sub { max-width: 46rem; margin-top: clamp(18px, 2vw, 30px); font-size: clamp(1rem, 1.45vw, 21px); line-height: 1.6; color: rgba(255, 255, 255, .86); }
 
-/* Email capture pill — white shell, brand-green action. */
-.notify { margin-top: clamp(26px, 3vw, 40px); display: flex; align-items: center; width: min(37.625rem, 100%); height: 3.75rem; background: #fff; border-radius: .375rem; padding: .125rem .125rem .125rem 1.25rem; }
-.notify input { flex: 1; min-width: 0; height: 100%; border: 0; background: transparent; font: 400 1rem var(--font-sans), sans-serif; color: var(--ink); outline: none; }
-.notify input::placeholder { color: var(--muted); }
-.notify:focus-within { box-shadow: 0 0 0 2px var(--water); }
-.notify button { flex: none; display: flex; align-items: center; justify-content: center; width: 10.5rem; height: 3.5rem; border: 0; border-radius: .25rem; background: var(--forest); color: #fff; font: 500 .875rem var(--font-sans), sans-serif; letter-spacing: .02em; cursor: pointer; transition: background .2s ease, box-shadow .25s ease; }
-.notify button:hover { background: var(--forest-mid); box-shadow: 0 14px 30px -6px rgba(0, 0, 0, .32); }
-.notify button:disabled { opacity: .7; cursor: default; }
-.notify button span { display: inline-block; transition: transform .25s ease; }
-.notify button:hover span { transform: scale(1.06); }
+/* Top band only — no space-between, so the middle and lower thirds of the
+   frame stay clear for the film's own captions. */
+/* Left-aligned, not centred. The film's own captions are centred, and centred
+   copy above them read as one stuttering stack — at one point the film burns in
+   "Healing The Healthy Way" directly under our h1 saying the same thing. Off to
+   the left it is page furniture and the caption is part of the film. It also
+   puts the hero on the same left edge as every rail below it. */
+.hero__content { position: relative; z-index: 2; display: flex; flex-direction: column; align-items: flex-start; text-align: left; padding-inline: var(--gutter); padding-top: calc(var(--bar) + clamp(20px, 4vh, 48px)); }
+.hero__content { text-shadow: 0 1px 2px rgba(0, 42, 37, .5), 0 2px 18px rgba(0, 42, 37, .55); }
+.hero__eyebrow { margin-bottom: clamp(16px, 2vw, 28px); }
+.hero__title { font-family: var(--font-sans), system-ui, sans-serif; font-weight: 600; font-size: clamp(2.35rem, 7.6vw, 96px); line-height: 1.02; letter-spacing: -.025em; max-width: 20ch; }
+.hero__tagline { margin-top: clamp(10px, 1.4vw, 20px); font-family: var(--font-sans), system-ui, sans-serif; font-weight: 400; font-size: clamp(1.05rem, 1.9vw, 28px); line-height: 1.3; letter-spacing: -.015em; color: rgba(255, 255, 255, .92); }
 
-.hero__note { margin-top: clamp(14px, 1.6vw, 22px); font-size: clamp(.875rem, 1.2vw, 17px); color: rgba(255, 255, 255, .8); }
-
-/* Bottom-left corner badge: farm → science → wellness, PARVYUKT's three stages. */
-.hero__cue { position: absolute; left: var(--pad); bottom: clamp(28px, 4vw, 60px); z-index: 2; display: flex; align-items: center; gap: .75rem; color: rgba(255, 255, 255, .74); }
+/* Scroll cue, bottom left, opposite the film controls. */
+.hero__cue { position: absolute; left: var(--gutter); bottom: clamp(28px, 4vw, 60px); z-index: 2; display: flex; align-items: center; gap: .75rem; color: rgba(255, 255, 255, .74); text-shadow: 0 1px 2px rgba(0, 42, 37, .5); }
 .hero__cue i { width: 3px; height: 3px; border-radius: 50%; background: var(--air); }
 
-/* Inline form feedback: pale tints of the cyan and red petals, since both
-   forms sit on dark ground. */
-.form-status { margin-top: .75rem; min-height: 1.125rem; font-size: .875rem; text-align: center; color: rgba(255, 255, 255, .8); }
-.form-status.is-note { color: #8fe3cd; }
-.form-status.is-error { color: #ffb1a3; }
+/* ============================== BEATS ==============================
+   The page's spine. Every mid-page section is one idea: a heading rail on the
+   left — label, heading, and at most one margin note — and that heading's own
+   body on the right, stacked in reading order.
 
-/* ============================ ACTS ============================
-   The mid-page was eight stacked sections; it is now four "acts", each one
-   pairing beats that used to sit one above the other. The saving is horizontal
-   space traded for vertical: an asymmetric editorial grid, no min-height
-   floors, and tighter section padding.
+   The rule the layout enforces: a horizontal split is only ever a heading
+   against its own body, or copy against its own supporting media. Two
+   different topics never sit side by side, which is what the earlier
+   "act" pairings did and what made the page read as unrelated columns
+   travelling across the screen.
 
-   Scroll depth lives here too. Only decorative and media layers drift — never
-   body copy — and each one is clipped by its own frame, so travel can be
-   generous without a layer ever reaching the text around it. */
-/* The header is fixed, so an anchor jump would otherwise land the section's
-   first line underneath it — and put a focused control out of sight. */
-.act { padding-block: clamp(38px, 3.6vw, 68px); border-top: 1px solid var(--line); scroll-margin-top: clamp(76px, 8vw, 104px); }
-[id] { scroll-margin-top: clamp(76px, 8vw, 104px); }
-.act:first-of-type { border-top: 0; }
+   The rail is sticky, so a long body scrolls against the heading it belongs
+   to and the reader never loses which idea they are inside. Stacked below
+   980px, where there is no second column to travel against. */
+.beat { display: grid; grid-template-columns: minmax(0, .36fr) minmax(0, .64fr); column-gap: clamp(36px, 5vw, 96px); }
+.beat, .plate { padding-block: clamp(40px, 4.2vw, 80px); border-top: 1px solid var(--line); }
+.scene > :first-child { border-top: 0; }
 
-/* Shared type for every act heading, replacing the old chapter/block split. */
-.act h2 { max-width: 17ch; font-family: var(--font-serif), Georgia, serif; font-weight: 400; font-size: clamp(1.75rem, 3.1vw, 48px); line-height: 1.08; letter-spacing: -.03em; color: var(--forest); }
-.act h3 { font-family: var(--font-serif), Georgia, serif; font-weight: 400; letter-spacing: -.02em; color: var(--forest); }
-.act .label { margin-bottom: clamp(12px, 1.4vw, 20px); }
+.beat__rail { position: sticky; top: calc(var(--bar) + clamp(12px, 3vh, 40px)); align-self: start; }
+.beat__rail .label { display: block; margin-bottom: clamp(12px, 1.4vw, 20px); }
+.beat h2 { max-width: 22ch; font-family: var(--font-sans), system-ui, sans-serif; font-weight: 600; font-size: clamp(1.5rem, 2.4vw, 36px); line-height: 1.12; letter-spacing: -.02em; color: var(--forest); }
+.beat h3 { font-family: var(--font-sans), system-ui, sans-serif; font-weight: 600; letter-spacing: -.02em; color: var(--forest); }
+.beat__script { font-size: clamp(2rem, 3.6vw, 56px); }
+/* The one caveat on the page. As a margin note under the heading it costs no
+   vertical space at all; as a paragraph in the body it read as an argument. */
+.beat__note { max-width: 34ch; margin-top: clamp(18px, 2vw, 28px); padding-top: clamp(14px, 1.6vw, 20px); border-top: 1px solid var(--line); color: var(--ink-soft); font-size: .875rem; line-height: 1.6; }
 
-.prose > p { max-width: 44rem; color: var(--ink-soft); font-size: 1rem; line-height: 1.7; }
+.beat__body > * + * { margin-top: clamp(22px, 2.4vw, 36px); }
+
+/* Shared body type. */
+/* The body column is wider than any line should be. The block keeps the
+   column; the lines do not. min() rather than a fixed max-width so the measure
+   still collapses cleanly under zoom and user spacing overrides. */
+.prose > p { inline-size: min(100%, 65ch); color: var(--ink-soft); font-size: 1rem; line-height: 1.7; }
 .prose > p + p { margin-top: 1rem; }
-.prose--justify > p { text-align: justify; }
-.prose strong, .act strong { color: var(--ink); font-weight: 600; }
+.prose strong, .beat strong { color: var(--ink); font-weight: 600; }
 .prose > p.is-lede { color: var(--forest); font-weight: 500; font-size: 1.0625rem; }
+/* Progressive: unsupported browsers keep box-top alignment from the grid. */
+.prose > p:first-child { text-box: trim-start cap alphabetic; }
 
-/* --------------------------- act I — identity --------------------------- */
-/* Script title, prose and headline each own a cell, so the prose and the
-   headline start on the same row line — no hand-tuned offset to drift. */
-.act__intro { display: grid; grid-template-columns: 1fr 1fr; column-gap: clamp(36px, 5vw, 96px); align-items: start; }
-.act__script { font-size: clamp(2rem, 3.6vw, 56px); margin-bottom: clamp(14px, 1.6vw, 26px); }
+.claim { margin-top: clamp(16px, 1.8vw, 26px); padding: clamp(14px, 1.6vw, 22px) clamp(16px, 1.8vw, 26px); border-left: 2px solid var(--forest); background: var(--paper); font-size: .9375rem; line-height: 1.65; }
 
-/* Mission — was a 25rem-tall centred plate; now a band, quote beside the mark
-   rather than under it. The glow drifts behind, clipped by the band's radius. */
-.mission { position: relative; isolation: isolate; overflow: hidden; display: grid; grid-template-columns: minmax(0, .48fr) minmax(0, 1fr); gap: clamp(24px, 3vw, 56px); align-items: center; margin-top: clamp(30px, 3.4vw, 56px); padding: clamp(28px, 3.2vw, 52px) clamp(24px, 3.4vw, 60px); border-radius: .75rem; background: var(--forest-deep); color: #fff; }
+/* =============================== PLATES ===============================
+   The vision and the mission are statements, not arguments, so each takes the
+   full width with nothing beside it. */
+.plate > .label { display: block; margin-bottom: clamp(14px, 1.8vw, 26px); }
+
+/* --------------------------- vision headline ---------------------------
+   The forest ground is the fallback backdrop: the letters take their colour
+   from whatever sits behind them, so if the image is slow or blocked they come
+   out brand green rather than white-on-white. */
+.about__headline { position: relative; isolation: isolate; overflow: hidden; max-width: 16ch; background: var(--forest); font-weight: 700; font-size: clamp(1.9rem, 3.5vw, 58px); line-height: 1.08; letter-spacing: -.02em; text-transform: uppercase; }
+.about__headline__media { object-fit: cover; z-index: 0; pointer-events: none; filter: contrast(1.05) saturate(1.25); }
+/* Each letter takes its colour from the backdrop, so the backdrop has to be
+   dark everywhere — hero.png is not (its mushroom stem and petals are bright,
+   and those letters came out white-on-white). This scrim guarantees the range
+   instead of relying on filter maths against one particular image. */
+/* 16ch above is part of this: hero.png is a 4:3 composition with its subject
+   dead centre and dark edges, and object-fit: cover on a wide three-line box
+   scaled it up so far that only a horizontal band of the mushroom cap landed in
+   the letters — the rest came out flat green and read as a rendering fault. Six
+   short lines make a box close to the image's own aspect, so the whole
+   composition shows through. */
+.about__headline::before { content: ""; position: absolute; inset: 0; z-index: 1; background: rgba(0, 60, 54, .6); pointer-events: none; }
+.about__headline .word { white-space: nowrap; }
+.about__headline { text-box: trim-start cap alphabetic; }
+/* White knockout on `screen`: the letters show the image, the rest stays white. */
+.about__headline__fill { position: relative; z-index: 2; display: block; background: #fff; color: #000; mix-blend-mode: screen; }
+.about__headline.js-anim .char { opacity: 0; transition: opacity .05s linear; }
+.about__headline.js-anim.is-revealed .char { opacity: 1; }
+
+/* -------------------------------- mission --------------------------------
+   Stacked, not columned: the statement is the point, the values are its
+   footing, and neither is a neighbour of the other. The glow drifts behind,
+   clipped by the band's radius. */
+/* The same rail-and-body split as a beat, which is what keeps the plate from
+   being half empty: stacked, the statement's 46ch measure left most of a
+   full-width dark card with nothing on it. */
+.mission { position: relative; isolation: isolate; overflow: hidden; display: grid; grid-template-columns: minmax(0, .36fr) minmax(0, .64fr); column-gap: clamp(28px, 4vw, 80px); align-items: start; padding: clamp(28px, 3.4vw, 60px) clamp(24px, 3.4vw, 60px); border-radius: .75rem; background: var(--forest-deep); color: #fff; }
 .mission__side { position: relative; z-index: 1; }
-.mission__quote { position: relative; z-index: 1; font-family: var(--font-serif), Georgia, serif; font-size: clamp(1.1rem, 1.9vw, 27px); line-height: 1.32; letter-spacing: -.02em; }
-.mission__values { list-style: none; display: flex; flex-wrap: wrap; gap: .4rem clamp(12px, 1.4vw, 20px); margin-top: clamp(14px, 1.8vw, 24px); }
-.mission__values li { font-size: .6875rem; font-weight: 600; text-transform: uppercase; letter-spacing: .14em; color: rgba(255, 255, 255, .62); }
-.mission__values li + li::before { content: ""; display: inline-block; width: 3px; height: 3px; margin-right: clamp(12px, 1.4vw, 20px); border-radius: 50%; background: var(--water); vertical-align: middle; }
 /* On a light ground the emblem needs nothing; on this one its forest quadrant
    is #073C35 against #002A25 — 1.26:1 — so a quarter of the mark disappears
    and the other three read as an L. The brand ships no light variant of it
@@ -156,130 +244,88 @@ img { display: block; max-width: 100%; }
    pale ground it is drawn for. content-box so the declared width stays the
    emblem's and the padding grows the tile around it. */
 .mission__emblem { box-sizing: content-box; width: clamp(52px, 4.4vw, 72px); height: auto; padding: clamp(8px, .9vw, 12px); border-radius: .5rem; background: var(--paper); margin-bottom: clamp(14px, 1.6vw, 22px); }
+.mission__quote { position: relative; z-index: 1; max-width: 40ch; font-family: var(--font-sans), system-ui, sans-serif; font-weight: 500; font-size: clamp(1.1rem, 1.9vw, 27px); line-height: 1.32; letter-spacing: -.02em; }
+.mission__values { list-style: none; display: flex; flex-wrap: wrap; gap: .4rem clamp(12px, 1.4vw, 20px); margin-top: clamp(18px, 2vw, 28px); padding-top: clamp(14px, 1.6vw, 22px); border-top: 1px solid rgba(255, 255, 255, .18); }
+.mission__values li { font-size: .6875rem; font-weight: 600; text-transform: uppercase; letter-spacing: .14em; color: rgba(255, 255, 255, .62); }
+.mission__values li + li::before { content: ""; display: inline-block; width: 3px; height: 3px; margin-right: clamp(12px, 1.4vw, 20px); border-radius: 50%; background: var(--water); vertical-align: middle; }
 
-/* ---------------------- act II — category & platform ---------------------- */
-/* align-self keeps the head at content height so it can travel the section. */
-.act--pinned { display: grid; grid-template-columns: minmax(0, .82fr) minmax(0, 1.18fr); column-gap: clamp(36px, 5vw, 96px); }
-.act__head { position: sticky; top: clamp(92px, 13vh, 168px); align-self: start; }
-/* The caveat was a full-width paragraph of its own; as a margin note under the
-   pinned heading it costs no vertical space at all. */
-.act__note { max-width: 32ch; margin-top: clamp(18px, 2vw, 28px); padding-top: clamp(14px, 1.6vw, 20px); border-top: 1px solid var(--line); color: var(--ink-soft); font-size: .875rem; line-height: 1.6; }
-.act__body > * + * { margin-top: clamp(20px, 2.2vw, 32px); }
+/* ============================ BODY BLOCKS ============================ */
 
-/* Tinted band behind the market figures — the one place in the run where a
-   purely decorative layer drifts. */
+/* Tinted band behind the market figures — a frame for the layer drifting
+   inside it, which is the one purely decorative drift in the run. */
 .band { position: relative; isolation: isolate; overflow: hidden; padding: clamp(20px, 2.2vw, 32px) clamp(20px, 2.4vw, 36px); border-radius: .625rem; background: var(--paper); }
 .band .stats { position: relative; z-index: 1; border-top: 0; }
 
-/* A frame for the haze behind it: the wash is clipped by the block, and the
-   block's own copy never overflows, so nothing of the layout is lost to it. */
-.turn { position: relative; isolation: isolate; overflow: hidden; display: grid; grid-template-columns: minmax(0, .9fr) minmax(0, 1.1fr); gap: clamp(18px, 2.4vw, 40px); align-items: start; padding-top: clamp(20px, 2.2vw, 32px); border-top: 1px solid var(--line); }
-.turn__head h3 { font-size: clamp(1.5rem, 2.5vw, 36px); line-height: 1.1; }
-.turn > p { color: var(--ink-soft); font-size: 1rem; line-height: 1.7; }
-
-/* -------------------------- act III — the proof -------------------------- */
-/* Two beats that were full sections now run as a pair. --flip puts the media
-   first on desktop while leaving the source order intact for reading. */
-.act__pair { display: grid; grid-template-columns: minmax(0, 1.06fr) minmax(0, .94fr); column-gap: clamp(36px, 4.4vw, 84px); align-items: start; }
-/* "Who we serve" used to stack above the audiences, costing a full heading
-   block of height before the row even started. Beside them it fills space the
-   three columns were leaving empty, and the act loses ~120px. */
-.serve { display: grid; grid-template-columns: minmax(0, .78fr) minmax(0, 2.22fr); column-gap: clamp(30px, 3.6vw, 68px); align-items: start; }
-.serve__head h2 { max-width: 16ch; font-size: clamp(1.5rem, 2.3vw, 34px); }
-/* No rule here: `.serve__list` already closes with a bottom border. */
-.serve + .act__pair { margin-top: clamp(24px, 2.6vw, 38px); }
-.act__pair + .act__pair { margin-top: clamp(34px, 3.8vw, 62px); padding-top: clamp(30px, 3.4vw, 54px); border-top: 1px solid var(--line); }
-/* Not 1fr 1fr: `.meaning` has half again as much copy as `.founder`, so equal
-   columns left 135px of dead space under the founder. The wider cell reflows
-   the long paragraph onto fewer lines and the two columns finish together. */
-.act__pair--even { grid-template-columns: minmax(0, .86fr) minmax(0, 1.14fr); }
-.act__pair--flip { grid-template-columns: minmax(0, .94fr) minmax(0, 1.06fr); }
-.act__pair--flip .peshagi { order: -1; }
-.act__col > .prose { margin-top: clamp(16px, 1.8vw, 26px); }
-.act__col > h2 + .prose { margin-top: clamp(14px, 1.6vw, 22px); }
-.act .claim { margin-top: clamp(16px, 1.8vw, 26px); padding: clamp(14px, 1.6vw, 22px) clamp(16px, 1.8vw, 26px); border-left: 2px solid var(--forest); background: var(--paper); color: var(--ink-soft); font-size: .9375rem; line-height: 1.65; }
-
-/* ------------------------- vision headline (act I) -------------------------
-   The forest ground is the fallback backdrop: the letters take their colour
-   from whatever sits behind them, so if the image is slow or blocked they come
-   out brand green rather than white-on-white. */
-.about__headline { position: relative; isolation: isolate; overflow: hidden; background: var(--forest); font-weight: 700; font-size: clamp(1.9rem, 3.5vw, 58px); line-height: 1.08; letter-spacing: -.02em; text-transform: uppercase; }
-.about__headline__media { object-fit: cover; z-index: 0; pointer-events: none; filter: contrast(1.05) saturate(1.25); }
-/* Each letter takes its colour from the backdrop, so the backdrop has to be
-   dark everywhere — hero.png is not (its mushroom stem and petals are bright,
-   and those letters came out white-on-white). This scrim guarantees the range
-   instead of relying on filter maths against one particular image. */
-.about__headline::before { content: ""; position: absolute; inset: 0; z-index: 1; background: rgba(0, 60, 54, .66); pointer-events: none; }
-.about__headline .word { white-space: nowrap; }
-/* Progressive: unsupported browsers keep box-top alignment from the grid. */
-.about__headline, .prose--justify > p:first-child { text-box: trim-start cap alphabetic; }
-/* White knockout on `screen`: the letters show the image, the rest stays white. */
-.about__headline__fill { position: relative; z-index: 2; display: block; background: #fff; color: #000; mix-blend-mode: screen; }
-.about__headline.js-anim .char { opacity: 0; transition: opacity .05s linear; }
-.about__headline.js-anim.is-revealed .char { opacity: 1; }
-
-/* ------------------------------- market stats ------------------------------- */
 .stats { display: grid; grid-template-columns: repeat(3, 1fr); border-top: 1px solid var(--line); }
 .stats__item { padding: clamp(22px, 2.6vw, 36px) clamp(16px, 2vw, 32px) 0 0; }
 .stats__item + .stats__item { padding-left: clamp(16px, 2vw, 32px); border-left: 1px solid var(--line); }
-.stats dt { font-family: var(--font-serif), Georgia, serif; font-size: clamp(1.35rem, 2.3vw, 34px); line-height: 1.05; letter-spacing: -.035em; color: var(--forest); white-space: nowrap; }
+.stats dt { font-family: var(--font-sans), system-ui, sans-serif; font-weight: 600; font-size: clamp(1.35rem, 2.3vw, 34px); line-height: 1.05; letter-spacing: -.025em; color: var(--forest); white-space: nowrap; }
 .stats dd { margin-top: .625rem; color: var(--ink-soft); font-size: .8125rem; line-height: 1.5; }
 
-/* --------------------------------- stages --------------------------------- */
+/* A frame for the haze behind it: the wash is clipped by the block, and the
+   block's own copy never overflows, so nothing of the layout is lost to it. */
+.turn { position: relative; }
+.turn > p { max-width: 52ch; color: var(--ink-soft); font-size: 1.0625rem; line-height: 1.7; }
+
 .stages { list-style: none; display: grid; grid-template-columns: repeat(3, 1fr); grid-template-rows: auto auto auto; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
-.stages li { display: grid; grid-row: span 3; grid-template-rows: subgrid; }
-.stages li { padding: clamp(18px, 2vw, 26px) clamp(14px, 1.4vw, 22px) clamp(18px, 2vw, 26px) 0; }
+.stages li { display: grid; grid-row: span 3; grid-template-rows: subgrid; padding: clamp(18px, 2vw, 26px) clamp(14px, 1.4vw, 22px) clamp(18px, 2vw, 26px) 0; }
 .stages li + li { padding-left: clamp(14px, 1.4vw, 22px); border-left: 1px solid var(--line); }
-.stages__no { font-size: .6875rem; font-weight: 600; letter-spacing: .16em; color: var(--water); }
-.stages h3 { margin-top: .625rem; font-family: var(--font-serif), Georgia, serif; font-weight: 400; font-size: clamp(1.15rem, 1.7vw, 26px); letter-spacing: -.02em; color: var(--forest); }
-.stages p { margin-top: .5rem; font-size: .875rem; }
+.stages__no { font-size: .6875rem; font-weight: 600; letter-spacing: .16em; color: var(--water-ink); }
+.stages h3 { margin-top: .625rem; font-size: clamp(1.15rem, 1.7vw, 26px); }
+.stages p { margin-top: .5rem; color: var(--ink-soft); font-size: .875rem; line-height: 1.6; }
 
 /* ------------------------------ certificate ------------------------------
-   The frame clips; the image inside it is oversized so it can drift without
-   ever exposing an edge. */
-.cert { display: grid; grid-template-columns: minmax(120px, .62fr) minmax(0, 1fr); gap: clamp(18px, 2.2vw, 32px); align-items: end; padding: clamp(18px, 2vw, 28px); border: 1px solid var(--line); background: var(--paper); }
-.cert__media { position: relative; display: block; overflow: hidden; border: 1px solid var(--line); aspect-ratio: 724 / 1024; }
-.cert__media img { width: 100%; height: 112%; object-fit: cover; border: 0; }
-.cert figcaption { display: flex; flex-direction: column; padding-bottom: .5rem; }
+   Copy against its own supporting media, which is a pairing the spine allows:
+   the certificate is what the standards claim rests on. */
+.cert { display: grid; grid-template-columns: minmax(120px, .34fr) minmax(0, 1fr); gap: clamp(18px, 2.2vw, 32px); align-items: center; padding: clamp(18px, 2vw, 28px); border: 1px solid var(--line); background: var(--paper); }
+/* Shown whole. It used to be oversized inside a clipping frame so it could
+   drift, but object-fit: cover on a frame of the sheet's own aspect had to take
+   the overflow out of the sides — which cut the registered company name off
+   both edges of the certificate and read as a broken image, not as depth. */
+.cert__media { display: block; border: 1px solid var(--line); }
+.cert__media img { width: 100%; height: auto; border: 0; }
+.cert figcaption { display: flex; flex-direction: column; }
 .cert figcaption .label { margin-bottom: .625rem; }
-.cert strong { font-family: var(--font-serif), Georgia, serif; font-weight: 400; font-size: clamp(1.15rem, 1.7vw, 25px); line-height: 1.12; letter-spacing: -.02em; color: var(--forest); }
+.cert strong { font-family: var(--font-sans), system-ui, sans-serif; font-weight: 600; font-size: clamp(1.15rem, 1.7vw, 25px); line-height: 1.12; letter-spacing: -.02em; color: var(--forest); }
 .cert figcaption > span { margin-top: .625rem; color: var(--ink-soft); font-size: .8125rem; line-height: 1.5; }
 
-/* --------------------------------- peshagi --------------------------------- */
-/* The panel used to run the full page width, where a .5fr cell left the mark
-   plenty of room. In a half-width column that same ratio was almost all
-   padding and the wordmark came out ~55px wide, so the cell takes a larger
-   share here and the padding is trimmed to match. */
-.peshagi { display: grid; grid-template-columns: minmax(0, .8fr) minmax(0, 1.2fr); border: 1px solid var(--line); height: 100%; }
+/* --------------------------------- peshagi ---------------------------------
+   The one outbound link on the page, so the whole panel is the target and the
+   mark, the copy and an explicit destination all sit inside it. */
+.peshagi { display: grid; grid-template-columns: minmax(0, .34fr) minmax(0, .66fr); border: 1px solid var(--line); transition: border-color .25s ease, box-shadow .25s ease; }
+.peshagi:hover { border-color: var(--forest); box-shadow: 0 18px 40px -24px rgba(0, 42, 37, .45); }
+.peshagi:focus-visible { outline: 2px solid var(--water); outline-offset: 3px; }
 .peshagi__mark { position: relative; isolation: isolate; overflow: hidden; display: grid; place-items: center; padding: clamp(16px, 1.6vw, 24px); background: var(--paper); border-right: 1px solid var(--line); }
 .peshagi__mark img { position: relative; z-index: 1; width: min(180px, 82%); height: auto; }
-.peshagi__copy { padding: clamp(20px, 2.6vw, 36px); }
-.peshagi__copy .label { margin-bottom: .875rem; }
-.peshagi__copy p { color: var(--ink-soft); font-size: .9375rem; line-height: 1.7; }
+.peshagi__copy { display: block; padding: clamp(20px, 2.6vw, 36px); }
+.peshagi__copy .label { display: block; margin-bottom: .875rem; }
+.peshagi__text { display: block; color: var(--ink-soft); font-size: .9375rem; line-height: 1.7; }
+.peshagi__go { display: inline-flex; align-items: center; gap: .5rem; margin-top: clamp(16px, 1.8vw, 24px); font-size: .8125rem; font-weight: 600; letter-spacing: .02em; color: var(--forest); }
+.peshagi__go svg { width: .875rem; height: .875rem; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; transition: transform .25s ease; }
+.peshagi:hover .peshagi__go svg { transform: translate(2px, -2px); }
 
-/* ---------------------------- audiences ---------------------------- */
-.serve__list { list-style: none; display: grid; grid-template-columns: repeat(3, 1fr); grid-template-rows: auto auto auto; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
-.serve__list li { display: grid; grid-row: span 3; grid-template-rows: subgrid; }
-.serve__list li { padding: clamp(14px, 1.5vw, 19px) clamp(14px, 1.4vw, 22px) clamp(14px, 1.5vw, 19px) 0; }
-.serve__list li + li { padding-left: clamp(14px, 1.4vw, 22px); border-left: 1px solid var(--line); }
-.serve__list li > span { font-size: .6875rem; font-weight: 600; letter-spacing: .16em; color: var(--fire); }
-.serve__list h3 { margin-top: .625rem; font-family: var(--font-serif), Georgia, serif; font-weight: 400; font-size: clamp(1.15rem, 1.7vw, 25px); letter-spacing: -.02em; color: var(--forest); }
-.serve__list p { margin-top: .5rem; font-size: .875rem; }
+/* -------------------------------- audiences -------------------------------- */
+.audiences { list-style: none; display: grid; grid-template-columns: repeat(3, 1fr); grid-template-rows: auto auto auto; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+.audiences li { display: grid; grid-row: span 3; grid-template-rows: subgrid; padding: clamp(14px, 1.5vw, 19px) clamp(14px, 1.4vw, 22px) clamp(14px, 1.5vw, 19px) 0; }
+.audiences li + li { padding-left: clamp(14px, 1.4vw, 22px); border-left: 1px solid var(--line); }
+.audiences li > span { font-size: .6875rem; font-weight: 600; letter-spacing: .16em; color: var(--fire-ink); }
+.audiences h3 { margin-top: .625rem; font-size: clamp(1.15rem, 1.7vw, 25px); }
+.audiences p { margin-top: .5rem; color: var(--ink-soft); font-size: .875rem; line-height: 1.6; }
 
-/* ---------------------------- founder and meaning ---------------------------- */
-.founder { position: relative; isolation: isolate; overflow: hidden; }
-.founder h3, .meaning h3 { max-width: 26ch; margin-top: .25rem; margin-bottom: .75rem; font-size: clamp(1.15rem, 1.75vw, 26px); line-height: 1.14; }
-.founder > p, .meaning > p { color: var(--ink-soft); font-size: .9375rem; line-height: 1.7; }
-.founder > p + p, .meaning > p + p { margin-top: .875rem; }
-.meaning > p.lede { max-width: 34rem; font-family: var(--font-serif), Georgia, serif; font-size: clamp(1.05rem, 1.6vw, 22px); line-height: 1.3; letter-spacing: -.02em; color: var(--forest); }
+/* --------------------------- founder and meaning --------------------------- */
+.founder { position: relative; }
+.meaning > p { inline-size: min(100%, 65ch); color: var(--ink-soft); font-size: .9375rem; line-height: 1.7; }
+.meaning > p + p { margin-top: .875rem; }
+.meaning > p.lede { max-width: 34rem; font-family: var(--font-sans), system-ui, sans-serif; font-weight: 500; font-size: clamp(1.05rem, 1.6vw, 22px); line-height: 1.3; letter-spacing: -.02em; color: var(--forest); }
 
 /* --------------------------------- details --------------------------------- */
-.act details { margin-top: clamp(18px, 2vw, 28px); border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
-.act summary { display: flex; justify-content: space-between; align-items: center; padding-block: clamp(13px, 1.5vw, 19px); list-style: none; cursor: pointer; font-size: .6875rem; font-weight: 600; text-transform: uppercase; letter-spacing: .16em; color: var(--forest); }
-.act summary::-webkit-details-marker { display: none; }
-.act summary span { font-size: 1.125rem; transition: transform .25s ease; }
-.act details[open] summary span { transform: rotate(45deg); }
-.act details p { padding-bottom: clamp(16px, 1.8vw, 24px); color: var(--ink-soft); font-size: .9375rem; line-height: 1.7; }
+.beat details { margin-top: clamp(18px, 2vw, 28px); border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+.beat summary { display: flex; justify-content: space-between; align-items: center; padding-block: clamp(13px, 1.5vw, 19px); list-style: none; cursor: pointer; font-size: .6875rem; font-weight: 600; text-transform: uppercase; letter-spacing: .16em; color: var(--forest); }
+.beat summary::-webkit-details-marker { display: none; }
+.beat summary:focus-visible { outline: 2px solid var(--water); outline-offset: 3px; }
+.beat summary span { font-size: 1.125rem; transition: transform .25s ease; }
+.beat details[open] summary span { transform: rotate(45deg); }
+.beat details p { inline-size: min(100%, 65ch); padding-bottom: clamp(16px, 1.8vw, 24px); color: var(--ink-soft); font-size: .9375rem; line-height: 1.7; }
 
 /* ------------------------------ scroll depth ------------------------------
    ParallaxScene writes only --p per layer (-1 entering, 0 at the viewport's
@@ -292,112 +338,86 @@ img { display: block; max-width: 100%; }
               inside a frame that clips it. It can travel without exposing an
               edge and without ever reaching the copy beside it, which is why
               its distance (--drift) is set generously.
-     .plx   — a content block that moves itself, used from "Why medicinal
-              mushrooms" onward. Distance is --depth, an unscaled number, so a
-              single --plx-scale can shorten every one of them at once. */
+     .plx   — a content block that moves itself. Distance is --depth, an
+              unscaled number, so a single --plx-scale can shorten every one
+              of them at once. Never the rail: a transform on a sticky element
+              fights the sticky offset, and the rail is the reader's anchor. */
 .scene.is-live .drift { transform: translate3d(-50%, calc(var(--p, 0) * var(--drift, 0px)), 0); }
 
-/* Decorative layers — soft washes of the petal colours, purely atmospheric. */
+/* Oversized circles, centred on their frame and clipped by it. */
 .drift--glow, .drift--spore, .drift--mark { position: absolute; left: 50%; top: 50%; z-index: 0; transform: translate3d(-50%, 0, 0); margin-top: -50%; width: 130%; aspect-ratio: 1; border-radius: 50%; pointer-events: none; }
 .drift--glow { background: radial-gradient(circle, rgba(15, 172, 189, .34), transparent 62%); }
 .drift--spore { background: radial-gradient(circle, rgba(0, 60, 54, .09), transparent 66%); }
 .drift--mark { background: radial-gradient(circle, rgba(253, 185, 36, .12), transparent 58%); }
-/* The other two sit in frames with no background of their own, where the cut
-   edge of an oversized circle reads as a tinted rectangle rather than as a
-   wash. So these are exactly frame-sized and their gradient fades out well
-   inside that box — there is no edge to cut, and the strip a short travel
-   leaves empty was already transparent. The travel is correspondingly small,
-   which is all these need: they are a suggestion of depth behind copy, not
-   the moving media of the two frames above.
 
-   Being behind copy that has no z-index of its own, they go on a negative
-   index; `isolation` on the frame is what keeps them from falling through it
-   to the page. */
-.drift--haze, .drift--bloom { position: absolute; inset: 0; z-index: -1; pointer-events: none; }
-.drift--haze { background: radial-gradient(38% 32% at 32% 50%, rgba(15, 172, 189, .14), transparent 78%); }
-/* Sat over the founder's paragraph at first, which read as a highlight on one
-   line rather than as depth. Up behind the heading it is atmosphere again. */
-.drift--bloom { background: radial-gradient(40% 30% at 32% 38%, rgba(239, 65, 35, .11), transparent 76%); }
-/* No -50% to undo: unlike the circles, these already fill their frame. */
-.scene.is-live .drift--haze,
-.scene.is-live .drift--bloom { transform: translate3d(0, calc(var(--p, 0) * var(--drift)), 0); }
-.scene.is-live .drift--glow { --drift: 46px; }
-.scene.is-live .drift--spore { --drift: 38px; }
-.scene.is-live .drift--mark { --drift: 26px; }
-.scene.is-live .drift--haze { --drift: 20px; }
-.scene.is-live .drift--bloom { --drift: 18px; }
-
-/* The certificate is media rather than decoration, so it moves in its own
-   frame: 112% tall against a clipped box, leaving 6% of slack at each end. */
-.scene.is-live .drift--cert { --drift: 22px; transform: translate3d(0, calc(var(--p, 0) * var(--drift)), 0); }
+/* All three sit inside a tinted card — the mission plate, the figures band, the
+   PESHAGI cell — which is the condition that makes a wash read as light on a
+   surface. Two more once sat on plain white behind body copy (a haze behind the
+   platform paragraph, a bloom behind the founder's), and there a tint of any
+   shape or alpha read as a highlighter stroke over one or two lines, with a
+   visible edge where the block clipped it. Those are gone rather than tuned. */
 
 /* --------------------------- content depth (.plx) ---------------------------
-   From "Why medicinal mushrooms" on, the blocks themselves read at different
-   depths. A positive --depth lags behind the scroll (the block recedes); a
-   negative one runs ahead of it (the block comes forward). The pairing is
-   always horizontal — copy against the media or the list beside it — because
-   two columns can shear past each other by any amount without colliding,
-   while two blocks stacked in a column would trade the gap between them.
+   The body blocks read a little behind or ahead of the scroll, so the page has
+   depth without the rail ever moving.
 
-   Where blocks *are* stacked (Act II's body column, under the pinned heading)
-   the depths step by a few units at a time, and vertical neighbours are only
-   ever far apart in depth when they are near the edges of the viewport, where
-   --p is large. In the middle of the screen, where the eye is, --p is near 0
-   for everything and the gaps hold. Distances stay short throughout: this is
-   body copy, and it has to stay comfortable to read. */
+   One depth per beat, shared by every block in that beat, and the sign
+   alternates from beat to beat. That is the whole rule, and it is what keeps
+   the effect safe now that the blocks are stacked in a single column rather
+   than shearing past each other in two: blocks that share a depth move
+   together, so the gap between two neighbours can only change by the small
+   difference in how far each one is from the middle of the viewport. Beats
+   with opposing depths are separated by a section's padding, which is many
+   times the travel. Distances stay short throughout — this is body copy. */
 .scene { --plx-scale: 1; }
 .scene.is-live .plx { transform: translate3d(0, calc(var(--p, 0) * var(--depth, 0) * var(--plx-scale) * 1px), 0); }
-
-/* Act II — the pinned heading is the fixed reference; the body column unfurls
-   against it, each block a little deeper than the last. */
-.scene.is-live .act__body > .prose { --depth: 10; }
-.scene.is-live .act__body > .band { --depth: 17; }
-.scene.is-live .act__body > .turn { --depth: 24; }
-.scene.is-live .act__body > .stages { --depth: 30; }
-
-/* Act III — copy recedes, the certificate and the PESHAGI panel come forward,
-   and the layers already drifting inside them make a third depth. */
-.scene.is-live .act__col { --depth: 22; }
-.scene.is-live .cert { --depth: -18; }
-.scene.is-live .peshagi { --depth: -18; }
-
-/* Act IV — the heading against the audiences, the founder against the name. */
-.scene.is-live .serve__head { --depth: 26; }
-.scene.is-live .serve__list { --depth: -12; }
-.scene.is-live .founder { --depth: 22; }
-.scene.is-live .meaning { --depth: -14; }
+.scene.is-live .beat:nth-of-type(odd) .plx { --depth: 16; }
+.scene.is-live .beat:nth-of-type(even) .plx { --depth: -12; }
 
 /* ============================== CONTACT ============================== */
 .contact { text-align: center; padding-top: clamp(52px, 5.5vw, 96px); padding-bottom: clamp(48px, 5vw, 88px); }
 .contact__title { font-size: clamp(2rem, 3.6vw, 58px); margin-bottom: clamp(14px, 1.6vw, 22px); }
-.contact__lede { max-width: 44rem; margin: 0 auto clamp(26px, 3vw, 48px); color: var(--ink-soft); font-size: 1rem; line-height: 1.7; }
+.contact__lede { inline-size: min(100%, 60ch); margin: 0 auto clamp(26px, 3vw, 48px); color: var(--ink-soft); font-size: 1rem; line-height: 1.7; }
 /* Steps down from the lede: a shorter measure, and a negative top margin that
    pulls it up into the lede's gap so the two read as one block. The gap below
    is larger than the one between paragraphs so the dark form card reads as the
    next beat rather than crowding the copy. */
-.contact__sub { max-width: 40rem; margin: -.75rem auto clamp(38px, 4.5vw, 76px); color: var(--ink-soft); font-size: .9375rem; line-height: 1.7; }
-.contact__form { position: relative; max-width: 69.375rem; margin-inline: auto; background: var(--forest-deep); border-radius: .5rem; overflow: hidden; padding: clamp(34px, 4vw, 68px) clamp(24px, 4vw, 60px); }
+.contact__sub { inline-size: min(100%, 56ch); margin: -.75rem auto clamp(38px, 4.5vw, 76px); color: var(--ink-soft); font-size: .9375rem; line-height: 1.7; }
+.contact__form { position: relative; max-width: 54rem; margin-inline: auto; background: var(--forest-deep); border-radius: .5rem; overflow: hidden; padding: clamp(34px, 4vw, 68px) clamp(24px, 4vw, 60px); }
 .contact__form::before { content: ""; position: absolute; inset: 0; background: radial-gradient(90% 70% at 15% 0%, rgba(15, 172, 189, .18), transparent 60%), radial-gradient(80% 70% at 100% 100%, rgba(253, 185, 36, .12), transparent 62%); pointer-events: none; }
 .contact__fields { position: relative; z-index: 1; width: min(33.5rem, 100%); margin-inline: auto; display: flex; flex-direction: column; gap: clamp(16px, 2vw, 28px); text-align: left; }
 
-.field { width: 100%; height: 3.25rem; border: 0; border-radius: .25rem; background: var(--field); padding: 0 1rem; font: 400 1rem var(--font-sans), sans-serif; color: var(--ink); outline: none; }
-.field::placeholder { color: var(--muted); }
+/* min-height, not height: at large text-size settings a fixed box clips its
+   own value. Same reason for the buttons below. */
+.field { width: 100%; min-height: 3.25rem; border: 0; border-radius: .25rem; background: var(--field); padding: .875rem 1rem; font: 400 1rem var(--font-sans), sans-serif; color: var(--ink); outline: none; }
+.field::placeholder { color: var(--ink-muted); }
 .field:focus { box-shadow: 0 0 0 2px var(--water); }
+/* Label above control. Both halves of the pair live in .f so the two-up row
+   flexes the pair, not the input on its own. */
+.f { display: flex; flex-direction: column; gap: .5rem; min-width: 0; }
+.contact__fields label { font-size: .6875rem; font-weight: 600; text-transform: uppercase; letter-spacing: .12em; color: rgba(255, 255, 255, .82); }
+.f__req { color: var(--air); }
+.contact__req { margin-bottom: calc(clamp(16px, 2vw, 28px) * -.35); font-size: .75rem; color: rgba(255, 255, 255, .62); }
+
 .row { display: flex; gap: clamp(14px, 2vw, 24px); }
-.row .field { flex: 1; min-width: 0; }
+.row > .f { flex: 1; }
 
 .select-field { position: relative; }
-.select-field .field { appearance: none; padding-right: 2.5rem; color: var(--muted); cursor: pointer; }
+.select-field .field { appearance: none; padding-right: 2.5rem; color: var(--ink-muted); cursor: pointer; }
 .select-field .field:has(option:checked:not([disabled])) { color: var(--ink); }
-.select-field::after { content: ""; position: absolute; right: 1.125rem; top: 50%; transform: translateY(-30%); border: .4375rem solid transparent; border-top-color: var(--muted); border-bottom-width: 0; pointer-events: none; }
+.select-field::after { content: ""; position: absolute; right: 1.125rem; top: 50%; transform: translateY(-30%); border: .4375rem solid transparent; border-top-color: var(--ink-muted); border-bottom-width: 0; pointer-events: none; }
 
 .textarea-field { position: relative; }
-.textarea-field .field { height: 5.25rem; padding: .875rem 2.75rem .875rem 1rem; line-height: 1.5; resize: none; }
-.count { position: absolute; right: .75rem; bottom: .5rem; font-size: .75rem; color: var(--muted); }
+.textarea-field .field { min-height: 5.25rem; padding: .875rem 2.75rem .875rem 1rem; line-height: 1.5; resize: vertical; }
+.count { position: absolute; right: .75rem; bottom: .5rem; font-size: .75rem; color: var(--ink-muted); }
 
-.submit { align-self: center; display: flex; align-items: center; justify-content: center; width: 14.5rem; max-width: 100%; height: 2.75rem; margin-top: clamp(6px, 1vw, 12px); border: 0; border-radius: .25rem; background: #fff; color: var(--ink); font: 500 .875rem var(--font-sans), sans-serif; cursor: pointer; transition: background .2s ease, transform .25s ease, box-shadow .25s ease; }
+.submit { align-self: center; display: flex; align-items: center; justify-content: center; width: 14.5rem; max-width: 100%; min-height: 2.75rem; padding-block: .625rem; margin-top: clamp(6px, 1vw, 12px); border: 0; border-radius: .25rem; background: #fff; color: var(--ink); font: 500 .875rem var(--font-sans), sans-serif; cursor: pointer; transition: background .2s ease, transform .25s ease, box-shadow .25s ease; }
 .submit:hover { background: #ececec; transform: perspective(600px) translateZ(20px); box-shadow: 0 14px 34px rgba(0, 0, 0, .28); }
 .submit:disabled { opacity: .7; cursor: default; }
+
+.form-status { margin-top: .75rem; min-height: 1.125rem; font-size: .875rem; color: rgba(255, 255, 255, .8); }
+.form-status.is-note { color: #8fe3cd; }
+.form-status.is-error { color: #ffb1a3; }
 
 /* Honeypot wrapper. Off-screen rather than display:none or hidden — the bots
    worth catching skip fields they can tell are unrenderable, so this one has
@@ -415,53 +435,49 @@ img { display: block; max-width: 100%; }
 
 /* ============================= RESPONSIVE ============================= */
 
-/* Tablet — stack the about columns; the leaf falls between them. */
 @media (max-width: 980px) {
-  /* Every paired grid collapses to one column. A sticky heading needs a tall
+  /* The rail stacks above its body. A sticky heading needs a tall
      neighbouring column to travel against; stacked, it has none. */
-  .act__intro, .act--pinned, .act__pair, .act__pair--even, .act__pair--flip, .turn,
-  .serve, .mission { grid-template-columns: 1fr; row-gap: clamp(22px, 3.4vw, 34px); }
-  .act__head { position: static; }
-  .act h2, .serve__head h2 { max-width: 24ch; }
-  .act__note { max-width: none; }
+  .beat { grid-template-columns: 1fr; row-gap: clamp(20px, 3vw, 32px); }
+  .beat__rail { position: static; }
+  .beat h2 { max-width: 28ch; }
+  .mission { grid-template-columns: 1fr; row-gap: clamp(20px, 3vw, 30px); }
+  .beat__note { max-width: none; }
+  .about__headline { max-width: none; }
   .peshagi { grid-template-columns: 1fr; }
   .peshagi__mark { border-right: 0; border-bottom: 1px solid var(--line); }
-  /* Source order puts the PESHAGI panel first so it can lead on desktop; once
-     stacked, the copy should be read before the panel that illustrates it. */
-  .act__pair--flip .peshagi { order: 0; }
   .cert { grid-template-columns: minmax(110px, .5fr) minmax(0, 1fr); }
   /* Shorter travel: the same distance reads as a jump against a small viewport. */
   .scene.is-live .drift { --drift: 0px; }
   .scene.is-live .drift--glow { --drift: 26px; }
   .scene.is-live .drift--spore { --drift: 22px; }
   .scene.is-live .drift--mark { --drift: 15px; }
-  .scene.is-live .drift--cert { --drift: 13px; }
-  .scene.is-live .drift--haze { --drift: 12px; }
-  .scene.is-live .drift--bloom { --drift: 11px; }
-  /* Every paired grid is stacked by now, so the columns that used to shear
-     past each other are directly above and below one another instead. One
-     knob takes all of the content travel down with it. */
+  /* Rail and body are now stacked in the same column as everything else, so
+     one knob takes all of the content travel down with it. */
   .scene { --plx-scale: .4; }
 }
 
 @media (max-width: 600px) {
-  .stats, .stages, .serve__list { grid-template-columns: 1fr; }
-  .stages li + li, .serve__list li + li { padding-left: 0; border-left: 0; border-top: 1px solid var(--line); }
-  .stages li, .serve__list li { padding-right: 0; }
+  .stats, .stages, .audiences { grid-template-columns: 1fr; }
+  .stages li + li, .audiences li + li { padding-left: 0; border-left: 0; border-top: 1px solid var(--line); }
+  .stages li, .audiences li { padding-right: 0; }
   .stats__item { padding: clamp(18px, 4.5vw, 26px) 0 0; }
   .stats__item + .stats__item { padding-left: 0; border-left: 0; border-top: 1px solid var(--line); }
   .cert { grid-template-columns: 1fr; align-items: start; }
   .cert__media { max-width: 170px; }
 
   .hero__title { font-size: clamp(2rem, 9.5vw, 2.75rem); }
-  .hero__sub { font-size: .9375rem; max-width: 24rem; }
   .hero__cue { display: none; }
-  /* Keep the white pill when stacked — the forest button is invisible against
-     the forest hero without it. */
-  .notify { flex-direction: column; height: auto; padding: .5rem; gap: .5rem; }
-  .notify input { height: 3rem; width: 100%; padding: 0 .75rem; }
-  .notify button { width: 100%; }
-  .prose--justify > p { text-align: left; }
+  /* The plate is most of the bar's width at this size, so it loses the shadow
+     and keeps only the ground the mark needs. */
+  .logo { padding: 6px 10px; box-shadow: none; }
+  .logo img { height: 40px; }
+  .site-header__cta { min-height: 2.375rem; padding-inline: 14px; font-size: .75rem; }
+
+  /* Five or six centred lines is a lot of ragged edge to track on a phone.
+     The script title stays centred; the copy under it does not. */
+  .contact__lede, .contact__sub { text-align: left; }
+
   .about__headline { font-size: clamp(1.9rem, 8.6vw, 2.6rem); line-height: 1.1; }
   .mission { border-radius: .5rem; }
   .row { flex-direction: column; }
@@ -472,7 +488,13 @@ img { display: block; max-width: 100%; }
    the brand green fills around it — keyed to aspect, not width, because that
    is the condition that actually matters. */
 @media (max-aspect-ratio: 5/4) {
-  .hero__bg { object-fit: contain; }
+  /* The film keeps its own 16:9 shape and is anchored just above the controls,
+     with the copy in the band above it — and the hero shortens to fit that
+     composition. Left at 100svh the letterboxed film sat centred with roughly a
+     third of a phone screen of empty green under it. The short hero also lets
+     the first beat peek, which is the scroll cue this end of the page needs. */
+  .hero { min-height: 76vh; min-height: 76svh; }
+  .hero__bg { inset: auto 0 clamp(72px, 11vh, 100px) 0; height: auto; aspect-ratio: 16 / 9; object-fit: contain; }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -482,5 +504,5 @@ img { display: block; max-width: 100%; }
   /* ParallaxScene already bails out here; this covers the preference being
      switched on after the page has loaded. */
   .scene.is-live .drift { transform: translate3d(-50%, 0, 0); }
-  .scene.is-live .drift--cert, .scene.is-live .plx { transform: none; }
+  .scene.is-live .plx { transform: none; }
 }

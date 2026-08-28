@@ -1,9 +1,11 @@
 import type { Metadata } from "next";
-import { Newsreader, Poppins } from "next/font/google";
+import { Poppins } from "next/font/google";
+import localFont from "next/font/local";
 import "./globals.css";
 
 const poppins = Poppins({ variable: "--font-sans", subsets: ["latin"], weight: ["300", "400", "500", "600", "700"] });
-const newsreader = Newsreader({ variable: "--font-serif", subsets: ["latin"], style: ["normal", "italic"] });
+// Script accent face, shared with the Peshagi landing page (self-hosted).
+const shotflick = localFont({ src: "./fonts/ShotflickDemoRegular.ttf", variable: "--font-script", display: "swap" });
 
 export const metadata: Metadata = {
   title: "PARVYUKT — Healing The Healthy Way",
@@ -19,5 +21,5 @@ export const metadata: Metadata = {
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
-  return <html lang="en"><body className={`${poppins.variable} ${newsreader.variable}`}>{children}</body></html>;
+  return <html lang="en"><body className={`${poppins.variable} ${shotflick.variable}`}>{children}</body></html>;
 }
