@@ -231,7 +231,7 @@ export function HeroSignup() {
           required
         />
         <Honeypot />
-        <button type="submit" disabled={busy}>{busy ? "Sending…" : "Keep me posted"}</button>
+        <button type="submit" disabled={busy}>{busy ? "Sending…" : "Connect with PARVYUKT"}</button>
       </div>
       <p className={statusClass} role="status" aria-live="polite">{status?.text ?? ""}</p>
     </form>
@@ -342,7 +342,7 @@ export function ContactForm() {
         <Honeypot />
 
         <button type="submit" className="submit" disabled={busy}>
-          {busy ? "Sending…" : "Start with PARVYUKT"}
+          {busy ? "Sending…" : "Make an impact"}
         </button>
         <p className={statusClass} role="status" aria-live="polite">{status?.text ?? ""}</p>
       </div>

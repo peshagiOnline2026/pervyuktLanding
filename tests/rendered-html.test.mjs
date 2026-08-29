@@ -20,7 +20,7 @@ test("server-renders the PARVYUKT landing page", async () => {
   assert.match(html, /From Himalayan farms to your daily life/i);
   assert.match(html, /ISO 9001:2015 certified/i);
   assert.match(html, /Let’s shape the next chapter/i);
-  assert.match(html, /Start with PARVYUKT/i);
+  assert.match(html, /Make an impact/i);
   assert.doesNotMatch(html, /codex-preview|react-loading-skeleton/i);
 });
 
@@ -196,6 +196,16 @@ test("every enquiry field keeps a visible label", async () => {
   // Semantic types, so mobile keyboards match the field.
   assert.match(form, /id="contact-email"[^>]*type="email"|type="email"[^>]*id="contact-email"/);
   assert.match(form, /id="contact-mobile"[^>]*type="tel"|type="tel"[^>]*id="contact-mobile"/);
+});
+
+test("the founder's claim links to where the record is", async () => {
+  const html = await readFile(RENDERED_HTML_URL, "utf8");
+  const founder = slice(html, 'class="founder', "</section>");
+  assert.match(founder, /href="https:\/\/www\.linkedin\.com\/in\/rrahuldalmia\/"/, "founder LinkedIn is linked");
+  // Every outbound link on the page opens away from it, and a target="_blank"
+  // without noopener hands the new tab a handle on this one.
+  assert.match(founder, /target="_blank"/);
+  assert.match(founder, /rel="noopener noreferrer"/, "outbound links must not leak an opener");
 });
 
 test("PESHAGI links out, and the footer no longer claims a place", async () => {

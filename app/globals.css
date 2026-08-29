@@ -127,10 +127,12 @@ img { display: block; max-width: 100%; }
    was two voices in the same frame. Underneath, the headline is just the
    page's opening line and the film is left to be a film.
 
-   One screen, still: the plate is a fixed strip and the frame takes whatever
-   height is left, so the hero ends where the viewport does and the first beat
-   is one scroll away. */
-.hero { position: relative; display: flex; flex-direction: column; min-height: 100vh; min-height: 100svh; overflow: hidden; color: #fff; background: var(--forest-deep); }
+   The frame is the film's own shape at every width — 16:9, never cropped —
+   and the plate follows underneath it. The hero is therefore as tall as those
+   two things are, not as tall as the viewport: pinning it to 100svh is what
+   forced the frame to take "whatever height is left", and a frame whose height
+   is decided by the copy under it can only hold the film by cutting into it. */
+.hero { position: relative; display: flex; flex-direction: column; overflow: hidden; color: #fff; background: var(--forest-deep); }
 /* The hero is full-bleed and so cannot use .container, but its copy still has
    to start on the container's left edge — otherwise past --max the headline
    sits 160px left of the logo above it and the heading rail below it. 100%
@@ -138,10 +140,27 @@ img { display: block; max-width: 100%; }
    scrollbar. */
 .hero { --gutter: max(var(--pad), calc((100% - var(--max)) / 2 + var(--pad))); }
 
-/* Takes the remaining height, with a floor. min-height: 0 because a flex item
-   defaults to min-content and the video would otherwise refuse to shrink. */
-.hero__film { position: relative; flex: 1 1 auto; min-height: max(58svh, 320px); overflow: hidden; }
-.hero__bg { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: 0; }
+/* The film's own 16:9, as wide as it can be without growing taller than the
+   screen. Width is the only thing set; the ratio derives the height, which is
+   what keeps the two locked together no matter which one the viewport
+   squeezes.
+
+   The min() is the whole trick. On any ordinary screen the first term wins and
+   the frame is full-bleed. It is only on a viewport wider than 16:9 — an
+   ultrawide, a short laptop window — that a full-width 16:9 frame would stand
+   taller than the screen it is in, and there the second term takes over and
+   sizes the frame from the height instead, centring it. The brand ground shows
+   at its sides in that case, which is the honest trade: the alternative is
+   cropping the film, and the film is the thing being shown.
+
+   vh first, svh second: older engines take the fallback, and on mobile the svh
+   value is the one that does not jump as the URL bar retracts. */
+.hero__film { position: relative; flex: none; width: min(100%, calc(100vh * 16 / 9)); width: min(100%, calc(100svh * 16 / 9)); margin-inline: auto; aspect-ratio: 16 / 9; overflow: hidden; }
+/* contain, not cover. The frame is already the film's ratio so the two agree
+   exactly today; contain is what keeps that true — a replacement clip of some
+   other shape letterboxes inside the frame rather than silently losing its
+   edges. */
+.hero__bg { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; z-index: 0; }
 
 /* All the scrim still has to do is hold the mark in the bar above it — the
    copy is off the film now. So it is the header's own depth and a little
@@ -396,6 +415,15 @@ img { display: block; max-width: 100%; }
 
 /* --------------------------- founder and meaning --------------------------- */
 .founder { position: relative; }
+/* The page's second outbound link, and it is deliberately quieter than the
+   PESHAGI panel: that one is a destination being offered, this one is a
+   citation for the paragraph above it. Same underline-on-hover treatment the
+   rest of the body copy would get, plus the mark, so it reads as a reference
+   rather than as a second call to action competing with the enquiry card. */
+.founder__link { display: inline-flex; align-items: center; gap: .5rem; margin-top: clamp(16px, 1.8vw, 24px); font-size: .8125rem; font-weight: 600; letter-spacing: .02em; color: var(--forest); transition: color .2s ease; }
+.founder__link svg { width: 1.0625rem; height: 1.0625rem; flex: none; fill: currentColor; }
+.founder__link:hover { color: var(--water-ink); text-decoration: underline; text-underline-offset: 3px; }
+.founder__link:focus-visible { outline: 2px solid var(--water); outline-offset: 3px; border-radius: 2px; }
 .meaning > p { inline-size: min(100%, 65ch); color: var(--ink-soft); font-size: .9375rem; line-height: 1.7; }
 .meaning > p + p { margin-top: .875rem; }
 .meaning > p.lede { max-width: 34rem; font-family: var(--font-sans), system-ui, sans-serif; font-weight: 500; font-size: clamp(1.05rem, 1.6vw, 22px); line-height: 1.3; letter-spacing: -.02em; color: var(--forest); }
@@ -594,24 +622,18 @@ img { display: block; max-width: 100%; }
   .row { flex-direction: column; }
 }
 
-/* The film's captions are burned in and centred, so a portrait cover-crop
-   slices them in half. Below roughly 5:4 the frame takes the film's own shape
-   instead and the hero becomes three separate things stacked down the screen —
-   keyed to aspect, not width, because that is the condition that actually
+/* The frame is 16:9 at every width now, so this block no longer has to build
+   a different one — what is left is what changes below roughly 5:4, keyed to
+   aspect rather than width because that is the condition that actually
    matters. */
 @media (max-aspect-ratio: 5/4) {
-  /* The frame stops stretching and simply is 16:9, so the film fills it edge
-     to edge with nothing cropped and nothing letterboxed, and the hero is only
-     as tall as its three parts. The gap above it is the header's: at this
-     aspect the bar covers most of a 16:9 frame's upper third, and the mark
-     sitting on the film's first caption is worse than the mark sitting on the
-     plate. So the film clears the bar rather than running under it, and the
-     hero ends short enough that the first beat peeks — which is the scroll cue
-     this end of the page needs, now that the film is not filling the screen. */
-  .hero { min-height: 0; padding-top: var(--bar); }
-  .hero__film { flex: none; min-height: 0; aspect-ratio: 16 / 9; }
+  /* The film clears the header rather than running under it. On a wide screen
+     the bar covers an eighth of the frame's height and reads as an overlay; at
+     this aspect the frame is short enough that the same bar takes most of its
+     upper third, and the mark ends up sitting on the film's first caption. The
+     dark strip above is the better trade there. */
+  .hero { padding-top: var(--bar); }
   .hero__film::before { display: none; }
-  .hero__bg { object-fit: cover; }
 
   /* Controls tuck into the film's own bottom-right corner. They are the only
      thing over the video now, and at this size they are the reason the frame
