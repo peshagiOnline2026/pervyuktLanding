@@ -52,6 +52,7 @@
   --max: 1600px;
   --pad: clamp(20px, 6.25vw, 120px);   /* 120px gutters at 1920 */
   --bar: clamp(76px, 8vw, 104px);      /* the fixed header's own height */
+  --bar-solid: #fff;                   /* the bar once it stops being glass */
 }
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -91,7 +92,7 @@ img { display: block; max-width: 100%; }
    than as a boundary. The white bar is boundary enough; copy passes under it. */
 .site-header { position: fixed; inset: 0 0 auto; z-index: 50; background: transparent; transition: background .3s ease; }
 .site-header__inner { display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding-block: clamp(12px, 1.5vw, 20px); transition: padding .3s ease; }
-.site-header.is-scrolled { background: #fff; }
+.site-header.is-scrolled { background: var(--bar-solid); }
 .site-header.is-scrolled .site-header__inner { padding-block: clamp(9px, 1.1vw, 14px); }
 
 /* No plate under the mark at either end of the bar. The identity already
@@ -634,10 +635,23 @@ img { display: block; max-width: 100%; }
   /* The film clears the header rather than running under it. On a wide screen
      the bar covers an eighth of the frame's height and reads as an overlay; at
      this aspect the frame is short enough that the same bar takes most of its
-     upper third, and the mark ends up sitting on the film's first caption. The
-     dark strip above is the better trade there — and it is now the only thing
-     the mark has to sit on, the film carrying no scrim of its own. */
+     upper third, and the mark ends up sitting on the film's first caption. */
   .hero { padding-top: var(--bar); }
+
+  /* Which is also why the bar is solid from the first paint here, rather than
+     turning solid once the hero is behind it. Transparency is only worth
+     anything while there is something underneath worth seeing through to, and
+     at this aspect there is not: the film starts below the bar, so a glass
+     header sits on the hero's flat plate colour and reads as a dark strip that
+     abruptly turns pale on scroll. Holding the solid colour the whole way is
+     one bar instead of two, and it is the colour the page settles on anyway.
+
+     The mark follows the ground it is on. The light lockup exists for the
+     film; over a pale bar its cream wordmark is the same problem the white
+     plate was invented to solve, so this is the dark one from the start. */
+  .site-header { background: var(--bar-solid); }
+  .logo__mark--light { opacity: 0; }
+  .logo__mark--dark { opacity: 1; }
 
   /* Controls tuck into the film's own bottom-right corner. They are the only
      thing over the video now, and at this size they are the reason the frame

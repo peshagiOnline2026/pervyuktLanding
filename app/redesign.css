@@ -20,7 +20,9 @@
 }
 
 ::selection { background: #d9d2e5; color: var(--forest); }
-.site-header.is-scrolled { background: #fbf9f5; }
+/* The solid bar's colour, which is now also the mobile bar's colour at every
+   scroll position — one token, so the two cannot drift. */
+:root { --bar-solid: #fbf9f5; }
 .site-header__cta:hover { box-shadow: 0 12px 26px -10px rgba(29, 25, 48, .45); }
 .icon-btn { background: rgba(29, 25, 48, .38); }
 .icon-btn:hover { background: rgba(29, 25, 48, .65); }
