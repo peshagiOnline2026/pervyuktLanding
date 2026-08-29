@@ -555,6 +555,13 @@ img { display: block; max-width: 100%; }
 .submit:disabled { opacity: .7; cursor: default; }
 
 .form-status { margin-top: .75rem; min-height: 1.125rem; font-size: .875rem; color: rgba(255, 255, 255, .8); }
+/* Centred on the card, because the control it reports on is. The fields column
+   is left-aligned so its labels stack against one edge, but .submit breaks that
+   with align-self: center — which left the status line answering from the far
+   left of the column while the button it belongs to sat in the middle. It
+   tracks the button, not the labels. The hero's status keeps the column's
+   alignment, because the control there is the full width of it. */
+.contact__form .form-status { text-align: center; }
 .form-status.is-note { color: #8fe3cd; }
 .form-status.is-error { color: #ffb1a3; }
 
