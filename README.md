@@ -53,7 +53,7 @@ the route handler to match — anything off the list is stored as
 
 ### Environment variables
 
-`.env.example` lists all four with notes on where each value comes from.
+`.env.example` lists all seven with notes on where each value comes from.
 Copy it to `.env.local` for local development (Next.js loads that file
 automatically in both `dev` and `start`), and set the same values in
 Vercel → Settings → Environment Variables for the deployment:
@@ -64,6 +64,9 @@ Vercel → Settings → Environment Variables for the deployment:
 | `SUPABASE_SERVICE_ROLE_KEY` | yes | Server-only. Never expose it to the client or prefix it with `NEXT_PUBLIC_`. |
 | `TURNSTILE_SECRET_KEY` | no | When set, submissions must carry a valid Cloudflare Turnstile token. |
 | `ALLOWED_ORIGINS` | no | Comma-separated hosts. Defaults to same-origin only. |
+| `RESEND_API_KEY` | no | When set with `NOTIFY_FROM` and `NOTIFY_TO`, a successful insert also sends a notification email. Unset, submissions still save. |
+| `NOTIFY_FROM` | no | Sender, on a Resend-verified domain. Never the visitor's address — that is spoofing and fails DMARC. |
+| `NOTIFY_TO` | no | Comma-separated recipients. Each counts separately against Resend's 100/day free quota. |
 
 ## Deployment
 
