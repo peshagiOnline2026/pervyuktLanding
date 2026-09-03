@@ -295,9 +295,19 @@ export function ContactForm() {
 
   return (
     <form className="contact__form" onSubmit={onSubmit}>
-      <div className="contact__fields">
-        <p className="contact__req"><span className="f__req" aria-hidden="true">*</span> Required</p>
+      {/* Decorative contour wash behind the card — the Peshagi enquiry card's
+          water layer, carried over unchanged, rose-gold flow and all. Two
+          artboards rather than one scaled file: the desktop drawing is 1110x616
+          and goes to mush cropped to a phone's tall card, so the narrow build
+          is its own. Both stop animating under prefers-reduced-motion, which
+          the SVG handles itself — the page's CSS cannot reach SMIL inside an
+          <img>. */}
+      <picture className="contact__water" aria-hidden="true">
+        <source srcSet="/contact-water-mobile.svg" media="(max-width: 600px)" />
+        <img src="/contact-water.svg" alt="" />
+      </picture>
 
+      <div className="contact__fields">
         <Field id="contact-name" label="Full name" required>
           <input className="field" id="contact-name" type="text" name="name" autoComplete="name" required />
         </Field>

@@ -520,9 +520,20 @@ img { display: block; max-width: 100%; }
    is larger than the one between paragraphs so the dark form card reads as the
    next beat rather than crowding the copy. */
 .contact__sub { inline-size: min(100%, 56ch); margin: -.75rem auto clamp(38px, 4.5vw, 76px); color: var(--ink-soft); font-size: .9375rem; line-height: 1.7; }
-.contact__form { position: relative; max-width: 54rem; margin-inline: auto; background: var(--forest-deep); border-radius: .5rem; overflow: hidden; padding: clamp(34px, 4vw, 68px) clamp(24px, 4vw, 60px); }
+.contact__form { position: relative; max-width: 69.375rem; --u: 1rem; margin-inline: auto; background: var(--forest-deep); border-radius: .5rem; overflow: hidden; padding: clamp(34px, 4vw, 68px) clamp(24px, 4vw, 60px); }
 .contact__form::before { content: ""; position: absolute; inset: 0; background: radial-gradient(90% 70% at 15% 0%, rgba(15, 172, 189, .18), transparent 60%), radial-gradient(80% 70% at 100% 100%, rgba(253, 185, 36, .12), transparent 62%); pointer-events: none; }
+/* Decorative contour wash, layered over the ::before tint and under the
+   fields (which carry z-index: 1). The graphic is transparent line work, not a
+   plate, so the card's own --forest-deep and the two radials still read
+   through it. Cover, not contain: the card is the artboard's width but its
+   height is set by its content, so the drawing is always cropped a little
+   vertically — it is an abstract field, so a crop costs nothing where a
+   squash would be obvious. */
+.contact__water { position: absolute; inset: 0; opacity: .9; pointer-events: none; }
+.contact__water img { width: 100%; height: 100%; object-fit: cover; }
+
 .contact__fields { position: relative; z-index: 1; width: min(33.5rem, 100%); margin-inline: auto; display: flex; flex-direction: column; gap: clamp(16px, 2vw, 28px); text-align: left; }
+
 
 /* min-height, not height: at large text-size settings a fixed box clips its
    own value. Same reason for the buttons below. */
@@ -534,7 +545,6 @@ img { display: block; max-width: 100%; }
 .f { display: flex; flex-direction: column; gap: .5rem; min-width: 0; }
 .contact__fields label { font-size: .6875rem; font-weight: 600; text-transform: uppercase; letter-spacing: .12em; color: rgba(255, 255, 255, .82); }
 .f__req { color: var(--air); }
-.contact__req { margin-bottom: calc(clamp(16px, 2vw, 28px) * -.35); font-size: .75rem; color: rgba(255, 255, 255, .62); }
 
 .row { display: flex; gap: clamp(14px, 2vw, 24px); }
 .row > .f { flex: 1; }
@@ -563,6 +573,46 @@ img { display: block; max-width: 100%; }
 .form-status.is-note { color: #8fe3cd; }
 .form-status.is-error { color: #ffb1a3; }
 
+/* ---------------------------------------------------------------------
+   The enquiry card, sized the way Peshagi sizes its own.
+
+   Peshagi scales its whole page above 861px with
+   `html { font-size: min(16px, calc(100vw / 120)) }` — a 1920 canvas whose
+   rem shrinks with the viewport, so its card is 1110px wide at 1920 and
+   833px at 1440. PARVYUKT's root is a flat 16px, so the same rem values
+   would pin the card at its 1920 size all the way down and the two would
+   only ever agree at 1920.
+
+   Rather than put that root rule on this page — it would re-size every
+   section, not the card — the card carries the scale itself as --u, and
+   every dimension the two cards share is written as a multiple of it. --u
+   is a custom property rather than the card's own font-size because em
+   compounds: `width: 14.5em` on a button that is itself `font-size: .875em`
+   is 12.7 units, not 14.5. calc() against --u never does that.
+
+   Below 861px --u is a flat 1rem, which is where Peshagi stops scaling too,
+   so the base rules above go on governing the phone layout untouched.
+
+   Everything here is tuned once at 1920 against Peshagi's 1110x681, and
+   because both cards are then pure multiples of the same shrinking unit,
+   they stay the same size at every width above 861. --------------------- */
+@media (min-width: 861px) {
+  .contact__form { --u: min(16px, calc(100vw / 120)); max-width: calc(69.375 * var(--u)); border-radius: calc(.5 * var(--u)); padding: calc(4.5 * var(--u)) calc(3.75 * var(--u)); }
+  .contact__fields { width: min(calc(33.5 * var(--u)), 100%); gap: calc(1.625 * var(--u)); }
+  /* Was .5rem. The label and its control are one object; at Peshagi's height
+     the column cannot afford to say so four times over. */
+  .contact__fields .f { gap: calc(.25 * var(--u)); }
+  .contact__fields label { font-size: calc(.625 * var(--u)); }
+  .contact__fields .field { min-height: calc(3.25 * var(--u)); border-radius: calc(.25 * var(--u)); padding: calc(.875 * var(--u)) calc(1 * var(--u)); font-size: calc(1 * var(--u)); }
+  .contact__fields .row { gap: calc(1.75 * var(--u)); }
+  .contact__fields .select-field .field { padding-right: calc(2.5 * var(--u)); }
+  .contact__fields .select-field::after { right: calc(1.125 * var(--u)); border-width: calc(.4375 * var(--u)); border-bottom-width: 0; }
+  .contact__fields .textarea-field .field { min-height: calc(5.25 * var(--u)); padding: calc(.875 * var(--u)) calc(2.75 * var(--u)) calc(.875 * var(--u)) calc(1 * var(--u)); }
+  .contact__fields .count { right: calc(.75 * var(--u)); bottom: calc(.5 * var(--u)); font-size: calc(.75 * var(--u)); }
+  .contact__fields .submit { width: calc(14.5 * var(--u)); min-height: calc(2.5 * var(--u)); margin-top: calc(.75 * var(--u)); padding-block: calc(.5 * var(--u)); border-radius: calc(.25 * var(--u)); font-size: calc(.875 * var(--u)); }
+  .contact__form .form-status { margin-top: calc(.75 * var(--u)); min-height: calc(1.125 * var(--u)); font-size: calc(.875 * var(--u)); }
+}
+
 /* Honeypot wrapper. Off-screen rather than display:none or hidden — the bots
    worth catching skip fields they can tell are unrenderable, so this one has
    to look real to a parser and be unreachable to a person. */
@@ -570,6 +620,51 @@ img { display: block; max-width: 100%; }
 
 /* Screen-reader-only, for hidden form labels and legends. */
 .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; border: 0; }
+
+
+/* ============================ BUTTON WATER ============================ */
+/* Peshagi's submit_water on the three call-to-action buttons — the same
+   contour drawing as the enquiry card's wash, cropped to a 95x40 sliver and
+   carried over in its own rose-gold.
+
+   A background on a ::before rather than Peshagi's <img> child: the header CTA
+   is an <a> and the hero's button is bare text, so a pseudo-element puts the
+   graphic on all three without wrapping any of their labels in a span.
+
+   isolation + z-index: -1 is what lands the graphic above each button's own
+   background and below its label. A positioned child with z-index auto paints
+   over the text, and a bare z-index: -1 would drop behind the button's
+   background entirely — the isolate is what gives it a stacking context to sit
+   inside. overflow keeps the drawing within the corner radius.
+
+   The video's mute and pause controls are deliberately left alone: they are
+   44px circles holding a single icon, and a 95x40 landscape crop in one reads
+   as a smear rather than a flourish. */
+.site-header__cta, .signup button, .submit { position: relative; overflow: hidden; isolation: isolate; }
+
+.site-header__cta::before, .signup button::before, .submit::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 108%;
+  background: url("/submit-water.svg") center / cover no-repeat;
+  pointer-events: none;
+  z-index: -1;
+}
+
+/* Peshagi's own two crops: the wide one on its dark "Join Peshagi" button,
+   and the narrow one on the light contact button, where the drawing has to
+   stay clear of a dark label. */
+.site-header__cta::before { width: 85%; }
+.submit::before { width: 48%; }
+
+/* The hero button carries less than Peshagi's does. It is the widest of the
+   three and sits on the film, so the drawing reads at a smaller share of it. */
+.signup button::before { width: 65%; }
+@media (max-width: 600px) {
+  .signup button::before { width: 40%; }
+}
 
 /* =============================== FOOTER =============================== */
 /* Capped by the four petal colours — the logo read as a rule. */
