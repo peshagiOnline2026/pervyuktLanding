@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { AboutHeadline, ContactForm, HeroSignup, HeroVideo, ParallaxScene, SiteHeader } from "./interactive";
+import { AboutHeadline, Certificate, ContactForm, HeroSignup, HeroVideo, ParallaxScene, SiteHeader } from "./interactive";
 
 // The two outbound links on the page: the flagship personal-care brand's own
 // site, from the panel in #impact, and the founder's LinkedIn from #leadership.
@@ -108,10 +108,10 @@ export default function Home() {
               founded in 2021.
             </p>
             <p>
-              We focus on “skin-to-stomach” solutions that start at the farm and culminate in high-value
-              wellness products — pioneering integrated specialty medicinal mushroom cultivation and allied
-              Agri-activities, with a strong emphasis on biotechnology-driven research and premium personal
-              care, nutraceutical and food-and-beverage offerings.
+              We focus on “skin-to-stomach” preventive health solutions that start at the farm and culminate in
+              high-value wellness products — pioneering integrated specialty medicinal mushroom cultivation
+              and allied Agri-activities, with a strong emphasis on biotechnology-driven research and premium
+              personal care, nutraceutical and food-and-beverage offerings.
             </p>
             <p>
               Guided by the philosophy <strong>“Healing The Healthy Way”</strong>, PARVYUKT exists to help
@@ -233,6 +233,12 @@ export default function Home() {
             </p>
           </div>
 
+          {/* The standards half of this beat, and the only claim on the page a
+              reader can audit for themselves — so the sheet is here to be
+              opened and read, not to be looked at. Its own block rather than a
+              beat of its own: the spine allows copy beside its own supporting
+              media, and this is the evidence for the paragraph above it. */}
+          <Certificate />
         </div>
       </section>
 
@@ -260,7 +266,7 @@ export default function Home() {
           <a className="peshagi plx" href={PESHAGI_URL} target="_blank" rel="noopener noreferrer">
             <span className="peshagi__mark">
               <span className="drift drift--mark" aria-hidden="true" />
-              <Image src="/logo_word_dark.svg" alt="PESHAGI" width={164} height={50} />
+              <Image src="/peshagii.png" alt="PESHAGI — Exquisite Healing" width={710} height={812} sizes="(max-width: 980px) 100vw, 34vw" />
             </span>
             <span className="peshagi__copy">
               <span className="label label--water">Extending the ecosystem</span>

@@ -360,6 +360,156 @@ export function ContactForm() {
   );
 }
 
+/* ------------------------------ certificate ------------------------------
+   The ISO 9001 sheet, and a viewer for reading it.
+
+   All of this exists because the scan is 724x1024. At the size the page can
+   give it, the certificate is a shape with a seal on it; the only thing that
+   makes it evidence rather than decoration is being able to open it and read
+   the registered name, the scope and the number. So the sheet is a link to
+   the file itself — which is exactly what a visitor without JS gets — and
+   with JS that link opens the viewer instead of navigating away. */
+const CERT_FILE = "/iso-9001-certificate.jpg";
+const CERT_SIZE = { width: 724, height: 1024 };   // the scan's own pixels
+const CERT_NO = "24RN11AE";
+const CERT_ALT = `ISO 9001:2015 certificate of registration issued to Pervyukt Agrinnovaters Private Limited by Royal Impact Certification Ltd., certificate number ${CERT_NO}`;
+
+const CERT_FACTS = [
+  ["Standard", "ISO 9001:2015"],
+  ["Certificate no.", CERT_NO],
+  ["Valid from", "15 October 2025"],
+  ["Valid until", "4 November 2026"],
+];
+
+/** Magnifier, plus or minus depending on which way the toggle goes next. */
+function Glass({ out }: { out?: boolean }) {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+      <circle cx="10.5" cy="10.5" r="6.5" />
+      <path d={out ? "M15.5 15.5 21 21M7.5 10.5h6" : "M15.5 15.5 21 21M10.5 7.5v6M7.5 10.5h6"} />
+    </svg>
+  );
+}
+
+export function Certificate() {
+  const viewer = useRef<HTMLDialogElement>(null);
+  const [open, setOpen] = useState(false);
+  const [zoomed, setZoomed] = useState(false);
+
+  // showModal(), rather than an overlay of our own, for one specific reason:
+  // the card sits inside a .plx block, and a transformed ancestor makes
+  // position:fixed resolve against that ancestor instead of the viewport — a
+  // hand-rolled overlay would scroll away with the beat it opened from. The
+  // top layer is outside every transform, clip and z-index on the page, and
+  // it brings Escape, the focus trap and focus restoration with it.
+  useEffect(() => {
+    const el = viewer.current;
+    if (!el) return;
+    if (!open) {
+      if (el.open) el.close();
+      return;
+    }
+    if (!el.open) el.showModal();
+    // No engine stops the page behind a modal dialog from scrolling, and a
+    // certificate that pans under the finger while the page moves behind it
+    // is the one thing that makes a viewer feel broken. html carries
+    // scrollbar-gutter: stable, so taking the scrollbar away costs no reflow.
+    const root = document.documentElement;
+    const held = root.style.overflow;
+    root.style.overflow = "hidden";
+    return () => { root.style.overflow = held; };
+  }, [open]);
+
+  return (
+    <>
+      <figure className="cert plx" id="certification">
+        <a
+          className="cert__media"
+          href={CERT_FILE}
+          aria-haspopup="dialog"
+          onClick={(event) => {
+            // A modified click is the reader asking for a tab of their own,
+            // and the href is a real file — so those are left to the browser.
+            if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+            event.preventDefault();
+            setZoomed(false);
+            setOpen(true);
+          }}
+        >
+          <Image src={CERT_FILE} alt={CERT_ALT} sizes="(max-width: 600px) 170px, (max-width: 980px) 300px, 240px" {...CERT_SIZE} />
+          {/* Always on, not a hover reveal: a touch screen has no hover, and
+              this cue is the only thing saying the sheet is openable. */}
+          <span className="cert__view">
+            <Glass />
+            View full size
+          </span>
+        </a>
+
+        <figcaption>
+          <p className="label label--water">Quality and standards</p>
+          <strong>ISO 9001:2015 certified</strong>
+          <span>
+            Assessed and registered by Royal Impact Certification Ltd. under UAF accreditation, for
+            research and development, mushroom cultivation, farming, production and international
+            distribution of personal care, food and beverage products, nutraceuticals and condiments.
+          </span>
+          <dl className="cert__facts">
+            {CERT_FACTS.map(([term, value]) => (
+              <div key={term}>
+                <dt>{term}</dt>
+                <dd>{value}</dd>
+              </div>
+            ))}
+          </dl>
+        </figcaption>
+      </figure>
+
+      {/* Mounted empty until it is opened, so the full-resolution scan is
+          fetched by the reader who asked for it and by nobody else. */}
+      <dialog
+        ref={viewer}
+        className={`cert-view${zoomed ? " is-zoomed" : ""}`}
+        aria-label="ISO 9001:2015 certificate"
+        onClose={() => setOpen(false)}
+        onClick={(event) => { if (event.target === event.currentTarget) setOpen(false); }}
+      >
+        {open ? (
+          <div className="cert-view__inner">
+            <div className="cert-view__bar">
+              <p className="cert-view__title">ISO 9001:2015 — certificate no. {CERT_NO}</p>
+              {/* The label doubles as the accessible name so the icon-only
+                  phone layout below 600px still announces itself. */}
+              <button
+                type="button"
+                className="cert-view__btn"
+                aria-label={zoomed ? "Fit to screen" : "Zoom in"}
+                onClick={() => setZoomed((on) => !on)}
+              >
+                <Glass out={zoomed} />
+                <span className="cert-view__label">{zoomed ? "Fit to screen" : "Zoom in"}</span>
+              </button>
+              <button type="button" className="cert-view__btn cert-view__close" aria-label="Close" onClick={() => setOpen(false)}>
+                <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M6 6 18 18M18 6 6 18" /></svg>
+              </button>
+            </div>
+
+            {/* Clicking past the sheet closes; clicking the sheet zooms. The
+                button in the bar is the keyboard route to the same toggle. */}
+            <div className="cert-view__stage" onClick={(event) => { if (event.target === event.currentTarget) setOpen(false); }}>
+              {/* The file itself, not a re-encode. next/image would serve a
+                  quality-75 WebP at a width it picked, and this is a document
+                  scan whose small print is the whole reason the viewer exists —
+                  the thumbnail above is the one that wants optimising. */}
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img className="cert-view__img" src={CERT_FILE} alt={CERT_ALT} {...CERT_SIZE} onClick={() => setZoomed((on) => !on)} />
+            </div>
+          </div>
+        ) : null}
+      </dialog>
+    </>
+  );
+}
+
 const CHAR_STEP = 0.022;   // seconds between letters (~1.9s for the full line)
 
 /** Words paired with the index of their first letter, for the reveal delays. */
@@ -520,7 +670,11 @@ function flowSpan(el: HTMLElement, scrolled: number): [number, number] {
  */
 const REVEAL_GROUPS = [
   ".beat__rail > *",
-  ".beat__body > *:not(.band):not(.stages):not(.audiences)",
+  // :not(dialog) — the certificate viewer is a sibling of the card it opens
+  // from, so it is a child of a body here too. The reveal sets opacity and a
+  // transform on what it matches, and both of those land on a top-layer
+  // dialog exactly as written: an invisible, displaced viewer.
+  ".beat__body > *:not(.band):not(.stages):not(.audiences):not(dialog)",
   ".band .stats__item",
   ".stages > li",
   ".audiences > li",

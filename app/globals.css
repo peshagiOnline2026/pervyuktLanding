@@ -56,7 +56,11 @@
 }
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
-html { font-size: 16px; scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
+/* scrollbar-gutter so the certificate viewer can take the page's scroll away
+   while it is open without the layout behind it jumping a scrollbar's width.
+   The page is long enough to always have one, so the gutter reserves nothing
+   that was not already reserved. */
+html { font-size: 16px; scroll-behavior: smooth; scrollbar-gutter: stable; -webkit-text-size-adjust: 100%; }
 /* clip, not hidden: `overflow-x: hidden` on the body makes it a scroll
    container, which silently kills every `position: sticky` rail below. */
 body { background: #fff; color: var(--ink); font-family: var(--font-sans), system-ui, sans-serif; line-height: 1.5; overflow-x: hidden; overflow-x: clip; }
@@ -375,27 +379,122 @@ img { display: block; max-width: 100%; }
 
 /* ------------------------------ certificate ------------------------------
    Copy against its own supporting media, which is a pairing the spine allows:
-   the certificate is what the standards claim rests on. */
-.cert { display: grid; grid-template-columns: minmax(120px, .34fr) minmax(0, 1fr); gap: clamp(18px, 2.2vw, 32px); align-items: center; padding: clamp(18px, 2vw, 28px); border: 1px solid var(--line); background: var(--paper); }
-/* Shown whole. It used to be oversized inside a clipping frame so it could
-   drift, but object-fit: cover on a frame of the sheet's own aspect had to take
-   the overflow out of the sides — which cut the registered company name off
-   both edges of the certificate and read as a broken image, not as depth. */
-.cert__media { display: block; border: 1px solid var(--line); }
+   the certificate is what the standards claim rests on.
+
+   The sheet is shown whole. It used to be oversized inside a clipping frame
+   so it could drift, but object-fit: cover on a frame of the sheet's own
+   aspect had to take the overflow out of the sides — which cut the registered
+   company name off both edges and read as a broken image, not as depth.
+
+   Whole, though, is 724px of scan rendered at ~220, which is a shape with a
+   seal on it and not a document anyone can read. So the sheet is a control:
+   an <a> to the file itself, carrying its own cue, that opens the viewer
+   below. Everything the reader can check without opening it — the number, the
+   dates, who issued it — is set beside the sheet as text rather than left
+   inside the picture. */
+.cert { display: grid; grid-template-columns: minmax(140px, .34fr) minmax(0, 1fr); gap: clamp(18px, 2.2vw, 32px); align-items: center; padding: clamp(18px, 2vw, 28px); border: 1px solid var(--line); background: var(--paper); }
+.cert__media { display: block; border: 1px solid var(--line); background: #fff; cursor: zoom-in; transition: border-color .25s ease, box-shadow .25s ease; }
 .cert__media img { width: 100%; height: auto; border: 0; }
+.cert__media:hover { border-color: var(--forest); box-shadow: 0 18px 40px -24px rgba(0, 42, 37, .45); }
+.cert__media:focus-visible { outline: 2px solid var(--water); outline-offset: 3px; }
+/* A footer strip under the sheet rather than a bar laid over its foot: the
+   accreditation marks and the verification addresses are the bottom inch of
+   this scan, and they are the part a sceptical reader looks for first. And on
+   at every width rather than on hover, because a touch screen has no hover and
+   this cue is the only thing that says the picture opens. */
+.cert__view { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: .25rem .4rem; padding: .5rem .375rem; border-top: 1px solid var(--line); background: var(--forest-deep); color: #fff; font-size: .625rem; font-weight: 600; letter-spacing: .1em; line-height: 1.2; text-transform: uppercase; text-align: center; transition: background .25s ease; }
+.cert__media:hover .cert__view { background: var(--forest); }
+.cert__view svg { width: .875rem; height: .875rem; flex: none; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+
 .cert figcaption { display: flex; flex-direction: column; }
 .cert figcaption .label { margin-bottom: .625rem; }
 .cert strong { font-family: var(--font-sans), system-ui, sans-serif; font-weight: 600; font-size: clamp(1.15rem, 1.7vw, 25px); line-height: 1.12; letter-spacing: -.02em; color: var(--forest); }
-.cert figcaption > span { margin-top: .625rem; color: var(--ink-soft); font-size: .8125rem; line-height: 1.5; }
+.cert figcaption > span { margin-top: .625rem; inline-size: min(100%, 62ch); color: var(--ink-soft); font-size: .8125rem; line-height: 1.55; }
+
+/* The four things a reader would otherwise have to open the sheet to find.
+   Two columns, and they stay two on a phone — the values are short, and one
+   long column of four label-and-value pairs reads as a form. */
+.cert__facts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: clamp(10px, 1.4vw, 16px) clamp(16px, 2vw, 32px); margin-top: clamp(14px, 1.6vw, 20px); padding-top: clamp(12px, 1.4vw, 18px); border-top: 1px solid var(--line); }
+.cert__facts dt { font-size: .625rem; font-weight: 600; text-transform: uppercase; letter-spacing: .14em; color: var(--ink-muted); }
+.cert__facts dd { margin-top: .25rem; font-size: .8125rem; font-weight: 500; line-height: 1.4; color: var(--ink); }
+
+/* --------------------------- certificate viewer ---------------------------
+   The full sheet, in the top layer.
+
+   A <dialog> opened with showModal() rather than an overlay of our own, and
+   the card it opens from is the reason: .cert is a .plx block, and a
+   transformed ancestor makes position:fixed resolve against that ancestor
+   instead of the viewport — a hand-rolled overlay would scroll away with the
+   beat it came from. The top layer is outside every transform, clip and
+   z-index on the page, and Escape, the focus trap and focus restoration come
+   with it rather than being rebuilt.
+
+   The UA sheet gives a dialog its own border, padding and centring margins,
+   and the page's reset has already taken the margins; the rest is undone
+   here so the element is simply the viewport. */
+/* margin: 0 is load-bearing. The viewer is a sibling of the card, so it is a
+   child of .beat__body and takes that column's `> * + *` top margin — and
+   inset:0 with height:100% is over-constrained, so the margin does not
+   compete with `top`, it simply slides the whole viewport-sized box down
+   off the screen by however much the beat spacing happens to be. */
+.cert-view { position: fixed; inset: 0; width: 100%; max-width: 100%; height: 100%; max-height: 100%; margin: 0; border: 0; padding: 0; overflow: hidden; background: transparent; color: #fff; }
+.cert-view::backdrop { background: rgba(15, 13, 26, .97); }
+/* minmax(0, 1fr) on the column, not just the rows. An `auto` track is sized
+   from the max-content of what is in it and is never shrunk back to the
+   container, so the bar's title — which is set to truncate, and therefore
+   never asks for less — sized this grid instead: 418px of viewer inside a
+   390px phone, with the sheet cut off down its right edge. */
+.cert-view__inner { display: grid; grid-template-columns: minmax(0, 1fr); grid-template-rows: auto minmax(0, 1fr); height: 100%; }
+
+.cert-view__bar { display: flex; align-items: center; gap: .5rem; padding: clamp(8px, 1.2vw, 14px) clamp(10px, 2vw, 24px); background: rgba(29, 25, 48, .94); border-bottom: 1px solid rgba(255, 255, 255, .14); }
+.cert-view__title { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: .6875rem; font-weight: 600; letter-spacing: .14em; text-transform: uppercase; color: rgba(255, 255, 255, .78); }
+/* 2.75rem tall at every width — this bar is the whole of the viewer's
+   furniture, and on a phone both controls are thumb targets. */
+.cert-view__btn { flex: none; display: inline-flex; align-items: center; justify-content: center; gap: .45rem; min-height: 2.75rem; padding-inline: .875rem; border: 1px solid rgba(255, 255, 255, .28); border-radius: .25rem; background: transparent; color: #fff; font: 500 .8125rem var(--font-sans), sans-serif; cursor: pointer; transition: background .2s ease, border-color .2s ease; }
+.cert-view__btn:hover { background: rgba(255, 255, 255, .12); border-color: var(--air); }
+.cert-view__btn:focus-visible { outline: 2px solid var(--air); outline-offset: 2px; }
+.cert-view__btn svg { width: 1.0625rem; height: 1.0625rem; flex: none; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.cert-view__close { width: 2.75rem; padding-inline: 0; }
+
+/* overscroll-behavior so panning the sheet to its edge does not hand the
+   gesture back to the page underneath. */
+.cert-view__stage { overflow: auto; overscroll-behavior: contain; display: flex; padding: clamp(8px, 2vw, 28px); }
+/* margin: auto on the sheet rather than centring on the stage: a flex item
+   centred by justify/align-content that outgrows its container has the
+   overflow cut off its leading edge and unreachable by scrolling — which is
+   exactly the state the zoomed view is in. Auto margins centre while there is
+   room and collapse to zero once there is not. */
+/* flex: none, or the zoom below does nothing. A flex item shrinks by default,
+   so the moment the sheet is asked to be wider than the stage the stage
+   takes the width straight back — the zoomed sheet came out at the screen
+   width on a tablet and at its own 724px on a phone. */
+.cert-view__img { flex: none; margin: auto; max-width: 100%; max-height: 100%; width: auto; height: auto; background: #fff; box-shadow: 0 30px 80px -30px rgba(0, 0, 0, .8); cursor: zoom-in; }
+/* Fitted, a 724x1024 scan on a phone is ~250px wide and its small print is
+   sub-pixel. Zoomed is therefore sized from the stage, not from the file: a
+   little over twice the screen on a phone, where the gain is real, and capped
+   on a desktop, where the scan runs out of pixels before the screen runs out
+   of room. Past that the browser's own pinch is the next step up. */
+.cert-view.is-zoomed .cert-view__img { max-width: none; max-height: none; width: clamp(720px, 220%, 1080px); height: auto; cursor: zoom-out; }
+
+@media (max-width: 600px) {
+  /* Icon-only controls; the aria-label carries the name they lose. */
+  .cert-view__label { display: none; }
+  .cert-view__btn { width: 2.75rem; padding-inline: 0; }
+}
 
 /* --------------------------------- peshagi ---------------------------------
    The one outbound link on the page, so the whole panel is the target and the
-   mark, the copy and an explicit destination all sit inside it. */
+   mark, the copy and an explicit destination all sit inside it.
+
+   The mark side is PESHAGI's own brand plate — the wordmark already set over
+   its Himalayan ground — so it is laid in full-bleed rather than floated as a
+   small logo on paper: absolute inset, object-fit: cover, and the row height
+   taken from the copy beside it. */
 .peshagi { display: grid; grid-template-columns: minmax(0, .34fr) minmax(0, .66fr); border: 1px solid var(--line); transition: border-color .25s ease, box-shadow .25s ease; }
 .peshagi:hover { border-color: var(--forest); box-shadow: 0 18px 40px -24px rgba(0, 42, 37, .45); }
 .peshagi:focus-visible { outline: 2px solid var(--water); outline-offset: 3px; }
-.peshagi__mark { position: relative; isolation: isolate; overflow: hidden; display: grid; place-items: center; padding: clamp(16px, 1.6vw, 24px); background: var(--paper); border-right: 1px solid var(--line); }
-.peshagi__mark img { position: relative; z-index: 1; width: min(180px, 82%); height: auto; }
+.peshagi__mark { position: relative; isolation: isolate; overflow: hidden; display: grid; place-items: center; background: var(--forest-deep); }
+.peshagi__mark img { position: absolute; inset: 0; z-index: 1; width: 100%; height: 100%; object-fit: cover; }
 .peshagi__copy { display: block; padding: clamp(20px, 2.6vw, 36px); }
 .peshagi__copy .label { display: block; margin-bottom: .875rem; }
 .peshagi__text { display: block; color: var(--ink-soft); font-size: .9375rem; line-height: 1.7; }
@@ -684,7 +783,9 @@ img { display: block; max-width: 100%; }
   .beat__note { max-width: none; }
   .about__headline { max-width: none; }
   .peshagi { grid-template-columns: 1fr; }
-  .peshagi__mark { border-right: 0; border-bottom: 1px solid var(--line); }
+  /* Stacked, the mark has no flow content to stand it up — the plate carries
+     its own aspect instead. */
+  .peshagi__mark { aspect-ratio: 16 / 9; }
   .cert { grid-template-columns: minmax(110px, .5fr) minmax(0, 1fr); }
   /* Shorter travel: the same distance reads as a jump against a small viewport. */
   .scene.is-live .drift { --drift: 0px; }
@@ -706,8 +807,10 @@ img { display: block; max-width: 100%; }
   .stages li, .audiences li { padding-right: 0; }
   .stats__item { padding: clamp(18px, 4.5vw, 26px) 0 0; }
   .stats__item + .stats__item { padding-left: 0; border-left: 0; border-top: 1px solid var(--line); }
+  /* Stacked, and the sheet keeps a size its own cue can be read at. */
   .cert { grid-template-columns: 1fr; align-items: start; }
-  .cert__media { max-width: 170px; }
+  .cert__media { max-width: 190px; }
+  .cert__facts { gap: 12px 16px; }
 
   .hero__title { font-size: clamp(1.75rem, 8.2vw, 2.5rem); }
   .logo__mark { height: 40px; }
