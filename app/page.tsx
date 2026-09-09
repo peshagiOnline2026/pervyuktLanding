@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { AboutHeadline, Certificate, ContactForm, HeroSignup, HeroVideo, ParallaxScene, SiteHeader } from "./interactive";
+import { AboutHeadline, Certificates, ContactForm, HeroSignup, HeroVideo, ParallaxScene, SiteHeader } from "./interactive";
 
 // The two outbound links on the page: the flagship personal-care brand's own
 // site, from the panel in #impact, and the founder's LinkedIn from #leadership.
@@ -233,12 +233,15 @@ export default function Home() {
             </p>
           </div>
 
-          {/* The standards half of this beat, and the only claim on the page a
-              reader can audit for themselves — so the sheet is here to be
-              opened and read, not to be looked at. Its own block rather than a
-              beat of its own: the spine allows copy beside its own supporting
-              media, and this is the evidence for the paragraph above it. */}
-          <Certificate />
+          {/* The standards half of this beat, and the only claims on the page a
+              reader can audit for themselves — so the sheets are here to be
+              opened and read, not to be looked at. Their own blocks rather than
+              a beat of their own: the spine allows copy beside its own
+              supporting media, and this is the evidence for the paragraph above
+              it. Quality management and food safety are two separate
+              registrations, so they stay two cards rather than one card making
+              a combined claim neither sheet supports on its own. */}
+          <Certificates />
         </div>
       </section>
 

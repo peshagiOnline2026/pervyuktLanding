@@ -360,26 +360,86 @@ export function ContactForm() {
   );
 }
 
-/* ------------------------------ certificate ------------------------------
-   The ISO 9001 sheet, and a viewer for reading it.
+/* ------------------------------ certificates ------------------------------
+   The registration sheets — ISO 9001 and HACCP — and a viewer for reading
+   them.
 
-   All of this exists because the scan is 724x1024. At the size the page can
-   give it, the certificate is a shape with a seal on it; the only thing that
+   All of this exists because each scan is 724x1024. At the size the page can
+   give it, a certificate is a shape with a seal on it; the only thing that
    makes it evidence rather than decoration is being able to open it and read
    the registered name, the scope and the number. So the sheet is a link to
    the file itself — which is exactly what a visitor without JS gets — and
-   with JS that link opens the viewer instead of navigating away. */
-const CERT_FILE = "/iso-9001-certificate.jpg";
-const CERT_SIZE = { width: 724, height: 1024 };   // the scan's own pixels
-const CERT_NO = "24RN11AE";
-const CERT_ALT = `ISO 9001:2015 certificate of registration issued to Pervyukt Agrinnovaters Private Limited by Royal Impact Certification Ltd., certificate number ${CERT_NO}`;
+   with JS that link opens the viewer instead of navigating away.
 
-const CERT_FACTS = [
-  ["Standard", "ISO 9001:2015"],
-  ["Certificate no.", CERT_NO],
-  ["Valid from", "15 October 2025"],
-  ["Valid until", "4 November 2026"],
+   Both sheets are the same shape of claim, so they are one component driven
+   by the record below rather than two near-copies: the second sheet arriving
+   should not be able to leave the first one's markup behind. */
+const CERT_SIZE = { width: 724, height: 1024 };   // both scans' own pixels
+
+type Cert = {
+  file: string;
+  /** Its own id, because two sheets cannot share one anchor. */
+  anchor: string;
+  /** The standard's own name, which is also the fact value and the viewer title. */
+  standard: string;
+  no: string;
+  from: string;
+  until: string;
+  /** Who assessed it, for the caption and the alt text. */
+  issuer: string;
+  eyebrow: string;
+  heading: string;
+  scope: string;
+};
+
+const CERTS: Cert[] = [
+  {
+    file: "/iso-9001-certificate.jpg",
+    anchor: "certification",
+    standard: "ISO 9001:2015",
+    no: "24RN11AE",
+    from: "15 October 2025",
+    until: "4 November 2026",
+    issuer: "Royal Impact Certification Ltd.",
+    eyebrow: "Quality and standards",
+    heading: "ISO 9001:2015 certified",
+    scope:
+      "Assessed and registered by Royal Impact Certification Ltd. under UAF accreditation, for " +
+      "research and development, mushroom cultivation, farming, production and international " +
+      "distribution of personal care, food and beverage products, nutraceuticals and condiments.",
+  },
+  {
+    file: "/PAPL.HACCP.2026.jpg",
+    anchor: "haccp-certification",
+    standard: "HACCP",
+    no: "RSBV-2505-8703",
+    from: "5 May 2025",
+    until: "4 May 2028",
+    issuer: "Royal Stancert B.V.",
+    eyebrow: "Food safety",
+    heading: "HACCP certified",
+    scope:
+      "Hazard Analysis and Critical Control Points, assessed by Royal Stancert B.V. under Global " +
+      "Euro Accreditation Centre accreditation, for research and development, mushroom cultivation, " +
+      "farming, production and international distribution of personal care, food and beverage " +
+      "products, nutraceuticals and condiments.",
+  },
 ];
+
+/** What the sheet says, for a reader who cannot see the scan. */
+function certAlt(cert: Cert) {
+  return `${cert.standard} certificate of registration issued to Pervyukt Agrinnovaters Private Limited by ${cert.issuer}, certificate number ${cert.no}`;
+}
+
+/** The four things a reader would otherwise have to open the sheet to find. */
+function certFacts(cert: Cert): [string, string][] {
+  return [
+    ["Standard", cert.standard],
+    ["Certificate no.", cert.no],
+    ["Valid from", cert.from],
+    ["Valid until", cert.until],
+  ];
+}
 
 /** Magnifier, plus or minus depending on which way the toggle goes next. */
 function Glass({ out }: { out?: boolean }) {
@@ -391,10 +451,22 @@ function Glass({ out }: { out?: boolean }) {
   );
 }
 
-export function Certificate() {
+/** Both sheets, as siblings of the beat body so each takes its own spacing. */
+export function Certificates() {
+  return (
+    <>
+      {CERTS.map((cert) => (
+        <Certificate key={cert.file} cert={cert} />
+      ))}
+    </>
+  );
+}
+
+export function Certificate({ cert }: { cert: Cert }) {
   const viewer = useRef<HTMLDialogElement>(null);
   const [open, setOpen] = useState(false);
   const [zoomed, setZoomed] = useState(false);
+  const alt = certAlt(cert);
 
   // showModal(), rather than an overlay of our own, for one specific reason:
   // the card sits inside a .plx block, and a transformed ancestor makes
@@ -422,10 +494,10 @@ export function Certificate() {
 
   return (
     <>
-      <figure className="cert plx" id="certification">
+      <figure className="cert plx" id={cert.anchor}>
         <a
           className="cert__media"
-          href={CERT_FILE}
+          href={cert.file}
           aria-haspopup="dialog"
           onClick={(event) => {
             // A modified click is the reader asking for a tab of their own,
@@ -436,7 +508,7 @@ export function Certificate() {
             setOpen(true);
           }}
         >
-          <Image src={CERT_FILE} alt={CERT_ALT} sizes="(max-width: 600px) 170px, (max-width: 980px) 300px, 240px" {...CERT_SIZE} />
+          <Image src={cert.file} alt={alt} sizes="(max-width: 600px) 170px, (max-width: 980px) 300px, 240px" {...CERT_SIZE} />
           {/* Always on, not a hover reveal: a touch screen has no hover, and
               this cue is the only thing saying the sheet is openable. */}
           <span className="cert__view">
@@ -446,15 +518,11 @@ export function Certificate() {
         </a>
 
         <figcaption>
-          <p className="label label--water">Quality and standards</p>
-          <strong>ISO 9001:2015 certified</strong>
-          <span>
-            Assessed and registered by Royal Impact Certification Ltd. under UAF accreditation, for
-            research and development, mushroom cultivation, farming, production and international
-            distribution of personal care, food and beverage products, nutraceuticals and condiments.
-          </span>
+          <p className="label label--water">{cert.eyebrow}</p>
+          <strong>{cert.heading}</strong>
+          <span>{cert.scope}</span>
           <dl className="cert__facts">
-            {CERT_FACTS.map(([term, value]) => (
+            {certFacts(cert).map(([term, value]) => (
               <div key={term}>
                 <dt>{term}</dt>
                 <dd>{value}</dd>
@@ -469,14 +537,14 @@ export function Certificate() {
       <dialog
         ref={viewer}
         className={`cert-view${zoomed ? " is-zoomed" : ""}`}
-        aria-label="ISO 9001:2015 certificate"
+        aria-label={`${cert.standard} certificate`}
         onClose={() => setOpen(false)}
         onClick={(event) => { if (event.target === event.currentTarget) setOpen(false); }}
       >
         {open ? (
           <div className="cert-view__inner">
             <div className="cert-view__bar">
-              <p className="cert-view__title">ISO 9001:2015 — certificate no. {CERT_NO}</p>
+              <p className="cert-view__title">{cert.standard} — certificate no. {cert.no}</p>
               {/* The label doubles as the accessible name so the icon-only
                   phone layout below 600px still announces itself. */}
               <button
@@ -501,7 +569,7 @@ export function Certificate() {
                   scan whose small print is the whole reason the viewer exists —
                   the thumbnail above is the one that wants optimising. */}
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img className="cert-view__img" src={CERT_FILE} alt={CERT_ALT} {...CERT_SIZE} onClick={() => setZoomed((on) => !on)} />
+              <img className="cert-view__img" src={cert.file} alt={alt} {...CERT_SIZE} onClick={() => setZoomed((on) => !on)} />
             </div>
           </div>
         ) : null}
@@ -523,14 +591,14 @@ function splitWords(text: string) {
 }
 
 /**
- * The vision, set in letters filled with the brand film — the same film the
- * hero plays — that type in once the headline scrolls into view.
+ * The vision, set in letters filled with the brand film, that type in once the
+ * headline scrolls into view.
  *
  * The observer does two jobs and so, unlike before, it is never disconnected
  * after the first hit: it types the line in once, and it runs the film only
- * while the line is actually on screen. A second copy of the hero's video
- * decoding continuously behind six lines of type, most of the time far above
- * the fold, is worth more than the branch it costs to avoid.
+ * while the line is actually on screen. A second film decoding continuously
+ * behind six lines of type, most of the time far above the fold, is worth more
+ * than the branch it costs to avoid.
  */
 export function AboutHeadline({ text }: { text: string }) {
   const ref = useRef<HTMLHeadingElement>(null);
@@ -575,12 +643,13 @@ export function AboutHeadline({ text }: { text: string }) {
 
   return (
     <h2 ref={ref} className="about__headline">
-      {/* The letters ARE this film. preload="none" because the hero has already
-          fetched the same file by the time anyone reaches this far down, so the
-          observer's play() comes out of cache; the poster is the still the
+      {/* The letters ARE this film — its own cut, not the hero's, so nothing has
+          fetched it yet. preload="none" keeps it off the wire until the observer
+          says the line is on screen, which is the point: a visitor who never
+          scrolls this far never pays for it. The poster is the still the
           headline used to carry, which makes every state where the video does
-          not run — no JS, reduced motion, a refused play — the old design
-          rather than an empty box. */}
+          not run — no JS, reduced motion, a refused play, the file still on its
+          way — the old design rather than an empty box. */}
       <video
         ref={film}
         className="about__headline__media"
@@ -592,7 +661,7 @@ export function AboutHeadline({ text }: { text: string }) {
         aria-hidden="true"
         tabIndex={-1}
       >
-        <source src="/hero-film.mp4" type="video/mp4" />
+        <source src="/Parvyukt_without_Supers.mp4" type="video/mp4" />
       </video>
       <span className="sr-only">{text}</span>
       {/* Letters are per-span so they can type in, but each word is wrapped in a

@@ -230,6 +230,7 @@ test("ships all supplied brand assets", async () => {
     "pervyukt-retail-mark-light.png",
     "pervyukt-emblem.png",
     "iso-9001-certificate.jpg",
+    "PAPL.HACCP.2026.jpg",
     "hero.png",
     "og.png",
   ];
