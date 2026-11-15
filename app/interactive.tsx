@@ -364,8 +364,8 @@ export function ContactForm() {
    The registration sheets — ISO 9001 and HACCP — and a viewer for reading
    them.
 
-   All of this exists because each scan is 724x1024. At the size the page can
-   give it, a certificate is a shape with a seal on it; the only thing that
+   All of this exists because the page can only give each sheet a thumbnail.
+   At that size, a certificate is a shape with logos on it; the only thing that
    makes it evidence rather than decoration is being able to open it and read
    the registered name, the scope and the number. So the sheet is a link to
    the file itself — which is exactly what a visitor without JS gets — and
@@ -374,10 +374,11 @@ export function ContactForm() {
    Both sheets are the same shape of claim, so they are one component driven
    by the record below rather than two near-copies: the second sheet arriving
    should not be able to leave the first one's markup behind. */
-const CERT_SIZE = { width: 724, height: 1024 };   // both scans' own pixels
 
 type Cert = {
   file: string;
+  /** The scan's own pixels — each sheet arrives at its own resolution. */
+  size: { width: number; height: number };
   /** Its own id, because two sheets cannot share one anchor. */
   anchor: string;
   /** The standard's own name, which is also the fact value and the viewer title. */
@@ -394,12 +395,13 @@ type Cert = {
 
 const CERTS: Cert[] = [
   {
-    file: "/iso-9001-certificate.jpg",
+    file: "/iso-9001-certificate.png",
+    size: { width: 2281, height: 3225 },
     anchor: "certification",
     standard: "ISO 9001:2015",
     no: "24RN11AE",
-    from: "15 October 2025",
-    until: "4 November 2026",
+    from: "12 November 2026",
+    until: "4 November 2027",
     issuer: "Royal Impact Certification Ltd.",
     eyebrow: "Quality and standards",
     heading: "ISO 9001:2015 certified",
@@ -410,6 +412,7 @@ const CERTS: Cert[] = [
   },
   {
     file: "/PAPL.HACCP.2026.jpg",
+    size: { width: 724, height: 1024 },
     anchor: "haccp-certification",
     standard: "HACCP",
     no: "RSBV-2505-8703",
@@ -508,7 +511,7 @@ export function Certificate({ cert }: { cert: Cert }) {
             setOpen(true);
           }}
         >
-          <Image src={cert.file} alt={alt} sizes="(max-width: 600px) 170px, (max-width: 980px) 300px, 240px" {...CERT_SIZE} />
+          <Image src={cert.file} alt={alt} sizes="(max-width: 600px) 170px, (max-width: 980px) 300px, 240px" {...cert.size} />
           {/* Always on, not a hover reveal: a touch screen has no hover, and
               this cue is the only thing saying the sheet is openable. */}
           <span className="cert__view">
@@ -569,7 +572,7 @@ export function Certificate({ cert }: { cert: Cert }) {
                   scan whose small print is the whole reason the viewer exists —
                   the thumbnail above is the one that wants optimising. */}
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img className="cert-view__img" src={cert.file} alt={alt} {...CERT_SIZE} onClick={() => setZoomed((on) => !on)} />
+              <img className="cert-view__img" src={cert.file} alt={alt} {...cert.size} onClick={() => setZoomed((on) => !on)} />
             </div>
           </div>
         ) : null}
